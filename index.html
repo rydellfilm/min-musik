@@ -195,7 +195,8 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.1";
+const VERSION = "0.2";
+const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
@@ -295,12 +296,14 @@ function demoSimilar(name){
 const KEY = "minmusik.v1", TOKKEY = "minmusik.tok", CACHEKEY = "minmusik.cache", RECKEY = "minmusik.recs";
 function defaults(){
   return {route:"tips", favorites:[], favGenres:[], liked:{}, disliked:{}, playlists:[], recent:[], folds:{}, tipShown:{}, zoom:1,
-    settings:{spClientId:"", lfmKey:"", aiProvider:"anthropic", aiKey:"", aiModel:"claude-sonnet-5-5", aiBase:"https://api.openai.com/v1", deviceId:"", deviceName:"", deviceType:""}};
+    settings:{spClientId:DEFAULT_SP_CLIENT, lfmKey:"", aiProvider:"anthropic", aiKey:"", aiModel:"claude-sonnet-5-5", aiBase:"https://api.openai.com/v1", deviceId:"", deviceName:"", deviceType:""}};
 }
 let state;
 try { state = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){ state = defaults(); }
 state.settings = Object.assign(defaults().settings, state.settings || {});
+if (!state.settings.spClientId && SP_REDIRECT_OK()) state.settings.spClientId = DEFAULT_SP_CLIENT;
 const S = () => state.settings;
+function SP_REDIRECT_OK(){ return location.origin + location.pathname === "https://rydellfilm.github.io/min-musik/"; }
 function save(){ state.updatedAt = new Date().toISOString(); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Kunde inte spara – lagringen är full."); } }
 
 /* Cache med livslängd */
