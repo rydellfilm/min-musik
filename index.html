@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.6";
+const VERSION = "0.7";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -425,6 +425,7 @@ function fromSp(t){
 async function spConnected(){
   try { SP.me = await sp("/me"); } catch(e){ if (e.status === 403) toast("Spotify nekar åtkomst. Lägg till ditt Spotify-konto under User Management i Spotify Dashboard."); }
   loadSDK(); pollNow(); render();
+  if (SP.me && !state.favorites.length && !state.autoTop){ state.autoTop = 1; save(); await importTopArtists(); }
 }
 
 /* Matcha en låt (från Last.fm, AI eller demo) mot Spotify */
@@ -934,6 +935,7 @@ function viewTips(){
   buildRecs();
   let h = "";
   if (!SP_REDIRECT_OK()) h += `<div class="banner"><b>Förhandsvisning</b>Den fullständiga appen med Spotify och din WiiM finns på <a href="${APP_URL}" target="_blank" rel="noopener">${APP_URL.replace("https://","")}</a>.</div>`;
+  if (SP_REDIRECT_OK() && !spOn() && (IS_MOBILE || window.MMAndroid)) return h + `<div class="banner" style="margin-top:24px;padding:22px 18px;text-align:center"><b style="font-size:20px;margin-bottom:8px">Ett steg kvar: anslut Spotify</b>Logga in med Facebook som vanligt. Sedan hämtas dina favoritartister och musiken kan spelas på din WiiM Pro Plus.<div style="margin-top:16px"><button class="btn pri" data-act="splogin" style="font-size:18px;padding:12px 22px">Anslut Spotify</button></div></div>`;
   else if (isDemo()) h += `<div class="banner"><b>Demoläge</b>Tipsen kommer från en liten inbyggd katalog och låtar öppnas i Spotify. Anslut Spotify och lägg in en Last.fm-nyckel under <a href="#" data-r="installningar">Inställningar</a> för riktiga tips och uppspelning direkt i appen.</div>`;
   const hasTaste = state.favorites.length || state.favGenres.length || Object.keys(state.liked).length;
   if (!hasTaste) return h + quickStart();
