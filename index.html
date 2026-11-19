@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.7";
+const VERSION = "0.8";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -334,7 +334,7 @@ const spUrl = t => t.url || (t.id ? "https://open.spotify.com/track/" + t.id : "
 /* ---------- Toast ---------- */
 let toastT;
 function toast(msg, action, fn, ms = 3500){
-  const el = $("#toast"); el.innerHTML = esc(msg) + (action ? `<button class="toastbtn">${esc(action)}</button>` : "");
+  const el = $("#toast"); if (!el) return; el.innerHTML = esc(msg) + (action ? `<button class="toastbtn">${esc(action)}</button>` : "");
   if (action) el.querySelector("button").onclick = () => { el.classList.remove("show"); fn(); };
   el.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), action ? Math.max(ms, 5500) : ms);
 }
@@ -351,19 +351,22 @@ const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(
 function saveTok(){ try { if (TOK) localStorage.setItem(TOKKEY, JSON.stringify(TOK)); else localStorage.removeItem(TOKKEY); } catch(e){} }
 function setTok(j){ TOK = {access:j.access_token, refresh:j.refresh_token || (TOK && TOK.refresh), exp:Date.now() + (j.expires_in || 3600) * 1000}; saveTok(); }
 
-async function spLogin(){
+async function spLogin(forApp){
   const id = S().spClientId.trim();
   if (!id){ toast("Fyll i ditt Spotify Client ID först."); go("installningar"); return; }
   if (!SP_REDIRECT_OK() && id === DEFAULT_SP_CLIENT){ toast("Öppnar den riktiga appen – anslut Spotify där."); openUrl(APP_URL); return; }
   if (location.protocol === "file:"){ toast("Spotify-inloggning kräver att appen öppnas från en webbadress (https eller http://127.0.0.1). Se Inställningar."); return; }
   if (!crypto.subtle){ toast("Webbläsaren saknar säker kontext (https) – inloggning går inte här."); return; }
+  if (window.MMAndroid && window.MMAndroid.openBrowser && !forApp){
+    let ok = false; try { ok = window.MMAndroid.openBrowser(APP_URL + "?applogin=1") === true; } catch(e){}
+    if (ok){ toast("Logga in i webbläsaren som öppnades. Du kommer tillbaka hit automatiskt.", null, null, 9000); return; }
+    toast("Webbläsaren gick inte att öppna – inloggningen sker här i appen.", null, null, 6000);
+  }
   const v = b64url(crypto.getRandomValues(new Uint8Array(48)));
   const c = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)));
-  const inApp = !!(window.MMAndroid && window.MMAndroid.openBrowser);
-  const st = (inApp ? "app." : "") + b64url(crypto.getRandomValues(new Uint8Array(12)));
+  const st = (forApp ? "app." : "") + b64url(crypto.getRandomValues(new Uint8Array(12)));
   localStorage.setItem("minmusik.pkce", JSON.stringify({v, st, redirect:SP_REDIRECT, id}));
   const url = "https://accounts.spotify.com/authorize?" + new URLSearchParams({client_id:id, response_type:"code", redirect_uri:SP_REDIRECT, code_challenge_method:"S256", code_challenge:c, state:st, scope:SCOPES});
-  if (inApp){ window.MMAndroid.openBrowser(url); toast("Logga in i webbläsaren. Du kommer tillbaka hit automatiskt.", null, null, 8000); return; }
   if (window.top !== window){ const w = window.open(url, "spauth", "width=480,height=760"); if (!w) location.href = url; }
   else location.href = url;
 }
@@ -380,6 +383,7 @@ async function spCallback(){
     const j = await r.json();
     if (!r.ok){ toast("Spotify: " + (j.error_description || j.error)); return; }
     setTok(j); localStorage.removeItem("minmusik.pkce");
+    if (p.st.startsWith("app.") && !window.MMAndroid){ const t = JSON.stringify(TOK); TOK = null; saveTok(); appReturn("tok=" + encodeURIComponent(t)); return "handoff"; }
     if (window.opener){ try { window.opener.postMessage({mmTok:TOK}, location.origin); } catch(e){} window.close(); }
     toast("Ansluten till Spotify.");
   } catch(e){ toast("Kunde inte nå Spotify: " + e.message); }
@@ -1348,7 +1352,17 @@ function appReturn(qs){
   setTimeout(() => { location.href = u; }, 300);
 }
 (async function init(){
-  { const q0 = new URLSearchParams(location.search); if ((q0.get("state") || "").startsWith("app.") && !window.MMAndroid){ appReturn(location.search.slice(1)); return; } }
+  const q0 = new URLSearchParams(location.search), st0 = q0.get("state") || "";
+  const page = msg => { document.body.innerHTML = `<div style="padding:48px 24px;max-width:520px;margin:0 auto"><h2>Min musik</h2><p>${msg}</p></div>`; };
+  if (window.MMAndroid && q0.has("tok")){ try { TOK = JSON.parse(q0.get("tok")); saveTok(); } catch(e){} history.replaceState(null, "", location.pathname); }
+  if (!window.MMAndroid && q0.has("applogin")){ history.replaceState(null, "", location.pathname); page("Öppnar Spotifys inloggning …"); spLogin(true); return; }
+  if (st0.startsWith("app.") && !window.MMAndroid){
+    let p = null; try { p = JSON.parse(localStorage.getItem("minmusik.pkce")); } catch(e){}
+    if (!p || p.st !== st0){ appReturn(location.search.slice(1)); return; }
+    page("Loggar in …");
+    if (await spCallback() !== "handoff") page("Inloggningen gick inte igenom. Gå tillbaka till Min musik-appen och tryck Anslut Spotify igen.");
+    return;
+  }
   setNavH();
   render();
   await spCallback();
