@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.5";
+const VERSION = "0.6";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -304,7 +304,7 @@ try { state = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY)) ||
 state.settings = Object.assign(defaults().settings, state.settings || {});
 if (!state.settings.spClientId) state.settings.spClientId = DEFAULT_SP_CLIENT;
 const S = () => state.settings;
-function devLabel(d){ const n = (S().devNames || {})[d.id]; if (n) return n; if (d.web || d.id === SP.webId) return "Den här webbläsaren"; if (/^[0-9a-f]{24,}$/i.test(d.name || "")) return (d.type === "AVR" || d.type === "Speaker") ? "Wifi-streamer (namnlös)" : "Namnlös enhet"; return d.name || "Okänd enhet"; }
+function devLabel(d){ const n = (S().devNames || {})[d.id]; if (n) return n; if (d.web || d.id === SP.webId) return "Den här webbläsaren"; if (/^[0-9a-f]{24,}$/i.test(d.name || "")) return d.type === "AVR" ? "WiiM Pro Plus" : d.type === "Speaker" ? "Wifi-högtalare" : "Namnlös enhet"; return d.name || "Okänd enhet"; }
 function SP_REDIRECT_OK(){ return location.origin + location.pathname === "https://rydellfilm.github.io/min-musik/"; }
 function save(){ state.updatedAt = new Date().toISOString(); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Kunde inte spara – lagringen är full."); } }
 
@@ -509,6 +509,8 @@ async function pickDevice(){
   try { const d = await sp("/me/player/devices"); list = (d && d.devices) || []; } catch(e){}
   const pref = findPref(list); if (pref) return pref.id;
   const act = list.find(x => x.is_active); if (act) return act.id;
+  const wifi = list.filter(x => x.type === "AVR" && !x.is_restricted);
+  if (wifi.length === 1){ setPrefDevice(wifi[0].id, devLabel(wifi[0]), wifi[0].type); return wifi[0].id; }
   if (SP.webId && !S().deviceName) return SP.webId;
   if (S().deviceName) return null;   // standardenheten syns inte – låt användaren välja
   if (SP.webId) return SP.webId;
