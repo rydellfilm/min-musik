@@ -195,7 +195,8 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.3";
+const VERSION = "0.4";
+const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -301,7 +302,7 @@ function defaults(){
 let state;
 try { state = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){ state = defaults(); }
 state.settings = Object.assign(defaults().settings, state.settings || {});
-if (!state.settings.spClientId && SP_REDIRECT_OK()) state.settings.spClientId = DEFAULT_SP_CLIENT;
+if (!state.settings.spClientId) state.settings.spClientId = DEFAULT_SP_CLIENT;
 const S = () => state.settings;
 function devLabel(d){ const n = (S().devNames || {})[d.id]; if (n) return n; if (d.web || d.id === SP.webId) return "Den här webbläsaren"; if (/^[0-9a-f]{24,}$/i.test(d.name || "")) return (d.type === "AVR" || d.type === "Speaker") ? "Wifi-streamer (namnlös)" : "Namnlös enhet"; return d.name || "Okänd enhet"; }
 function SP_REDIRECT_OK(){ return location.origin + location.pathname === "https://rydellfilm.github.io/min-musik/"; }
@@ -353,6 +354,7 @@ function setTok(j){ TOK = {access:j.access_token, refresh:j.refresh_token || (TO
 async function spLogin(){
   const id = S().spClientId.trim();
   if (!id){ toast("Fyll i ditt Spotify Client ID först."); go("installningar"); return; }
+  if (!SP_REDIRECT_OK() && id === DEFAULT_SP_CLIENT){ toast("Öppnar den riktiga appen – anslut Spotify där."); openUrl(APP_URL); return; }
   if (location.protocol === "file:"){ toast("Spotify-inloggning kräver att appen öppnas från en webbadress (https eller http://127.0.0.1). Se Inställningar."); return; }
   if (!crypto.subtle){ toast("Webbläsaren saknar säker kontext (https) – inloggning går inte här."); return; }
   const v = b64url(crypto.getRandomValues(new Uint8Array(48)));
@@ -927,7 +929,8 @@ function quickStart(){
 function viewTips(){
   buildRecs();
   let h = "";
-  if (isDemo()) h += `<div class="banner"><b>Demoläge</b>Tipsen kommer från en liten inbyggd katalog och låtar öppnas i Spotify. Anslut Spotify och lägg in en Last.fm-nyckel under <a href="#" data-r="installningar">Inställningar</a> för riktiga tips och uppspelning direkt i appen.</div>`;
+  if (!SP_REDIRECT_OK()) h += `<div class="banner"><b>Förhandsvisning</b>Den fullständiga appen med Spotify och din WiiM finns på <a href="${APP_URL}" target="_blank" rel="noopener">${APP_URL.replace("https://","")}</a>.</div>`;
+  else if (isDemo()) h += `<div class="banner"><b>Demoläge</b>Tipsen kommer från en liten inbyggd katalog och låtar öppnas i Spotify. Anslut Spotify och lägg in en Last.fm-nyckel under <a href="#" data-r="installningar">Inställningar</a> för riktiga tips och uppspelning direkt i appen.</div>`;
   const hasTaste = state.favorites.length || state.favGenres.length || Object.keys(state.liked).length;
   if (!hasTaste) return h + quickStart();
   const busy = RECS.busy ? `<div class="empty"><span class="spin"></span>Hämtar tips…</div>` : "";
@@ -1078,14 +1081,18 @@ function viewMitt(){
   return h;
 }
 
+let h_pre = "";
 function viewSettings(){
+  h_pre = "";
   const s = S(), fileProto = location.protocol === "file:";
-  let h = sec("spset", "Spotify", `
+  if (!SP_REDIRECT_OK()) h_pre = `<div class="banner" style="margin-top:16px"><b>Öppna den riktiga appen för Spotify</b>Den här kopian kan inte kopplas till Spotify. Öppna <a href="${APP_URL}" target="_blank" rel="noopener">${APP_URL.replace("https://","")}</a> – där är Spotify, Client ID och din WiiM redan inställda.</div>`;
+  let h = h_pre + sec("spset", "Spotify", `
     ${spOn() ? `<p>Ansluten${SP.me && SP.me.display_name ? " som <b>" + esc(SP.me.display_name) + "</b>" : ""}.</p><div class="acts"><button class="btn" data-devices="1">Välj högtalare</button><button class="btn" data-act="splogout">Koppla från</button></div>`
       : `<p class="hint" style="margin-top:8px">Med Spotify kan appen söka i hela katalogen, spela musik direkt (i webbläsaren, på högtalare via wifi eller i Bluetooth-hörlurar) och spara dina spellistor i Spotify.</p>`}
     <label class="f" for="spClientId">Client ID</label><input type="text" id="spClientId" value="${esc(s.spClientId)}" placeholder="32 tecken från Spotify Dashboard" autocomplete="off" spellcheck="false">
     ${spOn() ? "" : `<div class="acts"><button class="btn pri" data-act="splogin" ${s.spClientId ? "" : "disabled"}>Anslut Spotify</button></div>`}
     ${fileProto ? `<div class="warnbox">Appen är öppnad som fil (file://). Spotify kräver en webbadress. Lägg filen på t.ex. GitHub Pages (https) eller kör den lokalt via <span class="code">http://127.0.0.1:8080</span>.</div>` : ""}
+    ${SP_REDIRECT_OK() && s.spClientId === DEFAULT_SP_CLIENT ? `<p class="hint">Client ID är redan inställt för Min musik. Du behöver bara trycka Anslut och logga in med ditt Spotify-konto (Facebook).</p><details><summary class="hint" style="cursor:pointer">Eget Client ID (avancerat)</summary>` : "<details><summary class='hint' style='cursor:pointer'>Eget Client ID (avancerat)</summary>"}
     <h4>Så skaffar du ett Client ID</h4>
     <ol class="steps">
       <li>Gå till <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a> och logga in. Kontot måste ha <b>Spotify Premium</b>.</li>
@@ -1093,7 +1100,7 @@ function viewSettings(){
       <li>Kryssa i <b>Web API</b> och <b>Web Playback SDK</b> och spara.</li>
       <li>Kopiera <b>Client ID</b> från appens sida och klistra in ovan. Tryck Anslut.</li>
       <li>Ska fler använda appen med sina konton? Lägg till deras Spotify-mejl under <b>User Management</b> (högst fem personer).</li>
-    </ol>
+    </ol></details>
     <label class="toggle" style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="syncLibrary" ${s.syncLibrary ? "checked" : ""}> Spara även ♥-låtar i ”Gillade låtar” i Spotify</label>`);
   h += sec("playset", "Uppspelning", `
     <p class="hint" style="margin-top:8px">Välj din standardenhet, t.ex. WiiM-streamern på wifi. När du trycker spela i appen går musiken dit automatiskt.</p>
