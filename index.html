@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.9";
+const VERSION = "1.0";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -211,7 +211,7 @@ const fmtDur = ms => { if (!ms) return ""; const s = Math.round(ms/1000); return
 const fmtLen = ms => { const m = Math.round(ms/60000); return m < 60 ? m + " min" : Math.floor(m/60) + " h " + (m%60) + " min"; };
 const hue = s => { let h = 0; for (const c of String(s)) h = (h*31 + c.charCodeAt(0)) % 360; return h; };
 async function pmap(arr, n, fn){ const out = new Array(arr.length); let i = 0; await Promise.all(Array.from({length: Math.min(n, arr.length)}, async () => { while (i < arr.length){ const j = i++; try { out[j] = await fn(arr[j], j); } catch(e){ out[j] = null; } } })); return out; }
-function openUrl(u){ const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
+function openUrl(u){ if (window.MMAndroid && window.MMAndroid.openBrowser){ try { if (window.MMAndroid.openBrowser(u) !== false) return; } catch(e){} } const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
 
 const IC = {
   play:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>',
@@ -498,6 +498,16 @@ async function playTracks(list, startIdx = 0){
     await spPlay({uris});
     addRecent(slice[0]);
   } catch(e){ toast("Uppspelningen misslyckades: " + (e.status ? e.status + " " : "") + e.message, null, null, 10000); }
+}
+async function playOnPhone(){
+  const body = PENDING, u = body && body.uris && body.uris[0]; closeSheet(); if (!u) return;
+  toast("Öppnar Spotify-appen – musiken startar i telefonen.", null, null, 8000);
+  openUrl(u.startsWith("spotify:") ? u : "https://open.spotify.com/track/" + u.split(":").pop());
+  for (let i = 0; i < 12; i++){
+    await sleep(1500);
+    try { const d = await sp("/me/player/devices"), ph = ((d && d.devices) || []).find(x => x.type === "Smartphone" && !x.is_restricted);
+      if (ph){ await sp(`/me/player/play?device_id=${encodeURIComponent(ph.id)}`, {method:"PUT", body}); setTimeout(pollNow, 1000); return; } } catch(e){}
+  }
 }
 function findPref(list){
   const s = S(); if (!s.deviceId && !s.deviceName) return null;
@@ -1230,7 +1240,7 @@ document.addEventListener("click", async e => {
   if (el = g("[data-cleardev]")){ setPrefDevice("", "", ""); state.settings.deviceId = ""; save(); toast("Ingen standardenhet – appen använder den som spelar"); return render(); }
   if (el = g("[data-loaddevs]")){ const box = $("#devset"); box.innerHTML = `<div class="empty"><span class="spin"></span>Letar…</div>`; const l = await getDevices(); box.innerHTML = l.length ? devRows(l, "set") : `<div class="empty">Inga enheter hittades. ${wakeHelp(S().deviceName || "högtalaren")}</div>`; return; }
   if (el = g("[data-openspotify]")) return openUrl("https://open.spotify.com/");
-  if (el = g("[data-localplay]")){ const u = PENDING && PENDING.uris && PENDING.uris[0]; closeSheet(); if (u) openUrl("https://open.spotify.com/track/" + u.split(":").pop()); return; }
+  if (el = g("[data-localplay]")) return playOnPhone();
   if (el = g("[data-play]")){ e.preventDefault(); const k = el.dataset.play, ctx = el.dataset.ctx && SETS.get(el.dataset.ctx);
     if (ctx){ const i = ctx.findIndex(x => tk(x) === k); return playTracks(ctx, Math.max(0, i)); } return playTracks([TR.get(k)]); }
   if (el = g("[data-playset]")) return playTracks(SETS.get(el.dataset.playset) || []);
