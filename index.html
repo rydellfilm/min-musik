@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2C2F6E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Min musik">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234A4FB0'/%3E%3Cstop offset='1' stop-color='%2323265C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1024' height='1024' rx='230' fill='url(%23g)'/%3E%3Ccircle cx='512' cy='512' r='300' fill='%23F3F4FC'/%3E%3Crect x='372' y='412' width='56' height='200' rx='28' fill='%23D8962B'/%3E%3Crect x='484' y='342' width='56' height='340' rx='28' fill='%232C2F6E'/%3E%3Crect x='596' y='442' width='56' height='140' rx='28' fill='%23C0506A'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234A4FB0'/%3E%3Cstop offset='1' stop-color='%2323265C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1024' height='1024' fill='url(%23g)'/%3E%3Ccircle cx='512' cy='512' r='300' fill='%23F3F4FC'/%3E%3Crect x='372' y='412' width='56' height='200' rx='28' fill='%23D8962B'/%3E%3Crect x='484' y='342' width='56' height='340' rx='28' fill='%232C2F6E'/%3E%3Crect x='596' y='442' width='56' height='140' rx='28' fill='%23C0506A'/%3E%3C/svg%3E">
+<title>Min musik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --band:#2C2F6E; --band2:#43479A; --bandtxt:#F2F2FF;
+  --bg:#E1E3F3; --tint:#CFD2EC; --paper:#F3F4FC; --ink:#1B1D42; --mut:#4F5383; --faint:#7E81AE; --line:#C6C9E6;
+  --acc:#3E43A6; --accbg:#D4D7F2; --heartoff:#B3B6DA; --red:#B04A3E; --green:#3F7D55; --heart:#C0506A;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px); --navh:56px;
+  --font:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",-apple-system,"Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --band:#16183D; --band2:#2C3070; --bandtxt:#ECEDFF;
+    --bg:#1C1F45; --tint:#262A5C; --paper:#222652; --ink:#E9EAFB; --mut:#ADB0DA; --faint:#8487B8; --line:#353A72;
+    --acc:#AEB2FA; --accbg:#2E3378; --heartoff:#4C5090; --red:#EE9A8E; --green:#98CFA8; --heart:#EE9AB0; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
+#app,#sheetc{zoom:var(--z,1)}
+a{color:var(--acc)}
+
+header{position:sticky;top:0;z-index:5;background:var(--band);color:var(--bandtxt);padding:calc(var(--safe-t) + 16px) 20px 14px}
+header > *{max-width:720px;margin-left:auto;margin-right:auto}
+.hdrrow{display:flex;align-items:center;gap:10px}
+header h1{font-size:22px;font-weight:700;margin:0;letter-spacing:-.2px;flex:1}
+.hdrbtn{border:1px solid rgba(255,255,255,.25);background:none;color:var(--bandtxt);border-radius:8px;padding:5px 10px;font-size:14px}
+header .sub{color:var(--bandtxt);opacity:.75;font-size:14px;margin-top:2px}
+main{padding:0 20px calc(var(--navh) + 30px + var(--safe-b));max-width:760px;margin:0 auto}
+body.hasplayer main{padding-bottom:calc(var(--navh) + 100px + var(--safe-b))}
+
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:center;gap:4px;background:var(--band);padding:8px 8px calc(8px + var(--safe-b))}
+nav.bottom button{border:0;background:none;flex:1;max-width:140px;text-align:center;color:var(--bandtxt);opacity:.72;font-size:14px;padding:8px 0;border-radius:8px}
+nav.bottom .on{opacity:1;font-weight:700;background:var(--band2)}
+
+h2{font-size:20px;font-weight:700;margin:30px 0 6px;letter-spacing:-.1px}
+h2 small{font-size:14px;font-weight:400;color:var(--mut);margin-left:8px}
+h4{font-size:14px;font-weight:700;color:var(--mut);margin:16px 0 8px}
+.fold-head{cursor:pointer;user-select:none;display:flex;align-items:baseline;gap:10px}
+.fold-head::before{content:"";width:8px;height:8px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(-45deg);transition:transform .15s;flex:none;position:relative;top:-2px}
+.fold-head[aria-expanded="true"]::before{transform:rotate(45deg);top:-4px}
+h2.fold-head{background:var(--tint);border-radius:10px;padding:12px 14px;margin:14px 0 0}
+h2.fold-head small{margin-left:auto;color:var(--faint)}
+h2.fold-head[aria-expanded="true"]{border-radius:10px 10px 0 0}
+.fold-body{background:var(--paper);border-radius:0 0 10px 10px;padding:4px 14px 10px}
+
+/* Låtrader */
+.trk{display:flex;gap:12px;align-items:center;padding:10px 0 10px 10px;border-bottom:1px solid var(--line);border-left:4px solid var(--g,var(--line));cursor:pointer}
+.fold-body .trk:last-of-type{border-bottom:0}
+.trk .grow{flex:1;min-width:0}
+.trk .t{font-size:16px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trk .m{font-size:14px;color:var(--mut);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trk .m a,.mini .m a{color:inherit;text-decoration:none}
+.trk .m a:hover{text-decoration:underline}
+.trk.now .t{color:var(--acc)}
+.rank{flex:none;width:20px;font-size:15px;font-weight:700;color:var(--faint);text-align:right}
+.cov{width:52px;height:52px;border-radius:6px;overflow:hidden;flex:none;background:hsl(var(--h,240) 32% 52%);color:#fff;display:grid;place-items:center;font-weight:700;font-size:20px}
+.cov img{width:100%;height:100%;object-fit:cover;display:block}
+.reason{font-size:14px;color:var(--acc);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.racts{display:flex;align-items:center;gap:2px;flex:none}
+.ib{border:0;background:none;color:var(--mut);padding:6px;line-height:0;border-radius:50%}
+.ib:hover{color:var(--ink);background:var(--accbg)}
+.ib.play{color:var(--acc)}
+.heart{border:0;background:none;color:var(--heartoff);font-size:19px;padding:4px 5px;line-height:1}
+.heart.on{color:var(--heart)}
+.hide{border:0;background:none;color:var(--heartoff);font-size:16px;padding:4px 5px;line-height:1}
+.hide:hover{color:var(--red)}
+.empty{color:var(--mut);padding:14px 0;font-size:15px}
+@media (max-width:520px){ .trk .racts .hide,.trk .racts [data-add]{display:none} .trk.inpl .racts [data-mv]{display:none} }
+
+/* Kort i sidled */
+.hscroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:4px 0 10px}
+.hscroll::-webkit-scrollbar{display:none}
+.mini{flex:none;width:156px;background:var(--bg);border:1px solid var(--line);border-top:4px solid var(--g,var(--line));border-radius:8px;padding:10px;cursor:pointer}
+.mini .cov{width:100%;height:auto;aspect-ratio:1;font-size:40px;margin-bottom:8px}
+.mini .t{font-size:15px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mini .m{font-size:13px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mact{display:flex;justify-content:space-between;margin-top:6px}
+.rowhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:14px 0 4px}
+.rowhead b{font-size:16px}
+.rowhead .lnks{display:flex;gap:14px;flex:none}
+
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 14px;font-size:15px;color:var(--ink);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+@media (prefers-color-scheme: dark){ .btn.pri{color:#1B1D42} }
+.btn.sm{padding:5px 10px;font-size:14px}
+.btn:disabled{opacity:.5}
+.lnk{border:0;background:none;padding:4px 0;font-size:15px;color:var(--acc)}
+.links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px;margin:10px 0 4px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tag{border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.tag.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
+.tag .x{margin-left:6px;color:var(--faint)}
+.tag i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--g)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.seg{display:flex;gap:22px;margin-top:12px}
+.seg button{border:0;background:none;padding:4px 0;font-size:15px;color:var(--mut);border-bottom:2px solid transparent}
+.seg button.on{color:var(--ink);font-weight:700;border-bottom-color:var(--acc)}
+
+label.f{display:block;font-size:14px;color:var(--mut);margin:14px 0 6px}
+input[type=text],input[type=password],input[type=search],select,textarea{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:16px}
+.fold-body input[type=text],.fold-body input[type=password],.fold-body select{background:var(--bg)}
+.inl{position:relative;margin-top:6px}
+.inl input{padding-right:46px}
+.inl .go{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--acc);font-size:20px;padding:4px 8px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+.hint{font-size:14px;color:var(--mut);margin-top:6px;line-height:1.45}
+.hint code,.code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 6px;word-break:break-all}
+ol.steps{padding-left:20px;margin:8px 0;font-size:15px}
+ol.steps li{margin:6px 0}
+.banner{background:var(--accbg);border-radius:10px;padding:12px 14px;margin:14px 0 0;font-size:15px}
+.banner b{display:block;margin-bottom:2px}
+.warnbox{background:rgba(176,74,62,.12);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:14px;margin:10px 0}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ai-out{white-space:pre-wrap;line-height:1.55;font-size:16px;margin-top:10px}
+
+/* Spelare */
+#pbar{position:fixed;left:0;right:0;bottom:var(--navh);z-index:6;max-width:760px;margin:0 auto;background:var(--band2);color:var(--bandtxt);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:12px 12px 0 0}
+#pbar .cov{width:44px;height:44px;font-size:16px}
+#pbar .pbt{flex:1;min-width:0;cursor:pointer}
+#pbar .pbt b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pbar .pbt span{display:block;font-size:13px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pbar .ib{color:var(--bandtxt)}
+#pbar .ib:hover{background:rgba(255,255,255,.15)}
+#pbar .heart{font-size:18px}
+#pbar .heart:not(.on){color:rgba(255,255,255,.45)}
+#pbar .big svg{width:28px;height:28px}
+.dev{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.dev .grow{flex:1}
+.dev .m{font-size:14px;color:var(--mut)}
+.dev.on b{color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+
+/* Detaljvy */
+.sheetbg{position:fixed;inset:0;background:rgba(20,22,50,.4);z-index:20;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-height:90vh;overflow:auto;background:var(--bg);border-radius:14px 14px 0 0;padding:10px 22px calc(26px + var(--safe-b));transform:translateY(100%);transition:transform .25s ease;max-width:760px;margin:0 auto}
+.sheet.open{transform:none}
+@media (prefers-reduced-motion: reduce){.sheet{transition:none}}
+.sheet .grab{width:36px;height:4px;background:var(--line);border-radius:2px;margin:4px auto 14px}
+#sheetx{position:sticky;top:0;float:right;z-index:2}
+.sheet h3{font-size:24px;font-weight:700;margin:2px 0 4px;line-height:1.2}
+.hero{display:flex;gap:16px;align-items:flex-end;margin-bottom:6px}
+.hero .cov{width:120px;height:120px;font-size:46px;border-radius:8px}
+.hero .m{color:var(--mut);font-size:15px}
+.hero .m a{color:var(--ink);cursor:pointer}
+.pick{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:16px}
+.pick .m{font-size:14px;color:var(--mut);margin-left:auto}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--navh) + 70px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:15px;z-index:30;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;pointer-events:auto}
+.toastbtn{border:0;background:none;color:var(--bg);font-weight:700;text-decoration:underline;margin-left:10px;padding:0}
+.plhead{display:flex;align-items:center;gap:10px;margin:16px 0 4px}
+.plhead h2{margin:0;flex:1}
+.demo{font-size:14px;color:var(--faint);margin:24px 0 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdrrow"><h1>Min musik</h1><button class="hdrbtn" id="refresh" title="Hämta nya tips" aria-label="Hämta nya tips">↻</button><button class="hdrbtn" id="spbtn"></button></div>
+  <div class="sub" id="sub"></div>
+</header>
+<main id="app"></main>
+<div id="pbar" hidden></div>
+<nav class="bottom">
+  <button data-r="tips">Tips</button>
+  <button data-r="listor">Spellistor</button>
+  <button data-r="sok">Sök</button>
+  <button data-r="mitt">Mitt</button>
+  <button data-r="installningar">Inställningar</button>
+</nav>
+<div class="sheetbg" id="sheetbg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><button class="btn sm" id="sheetx" aria-label="Stäng">✕</button><div id="sheetc"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Min musik – fristående musikapp (systerapp till Min tablå)
+   Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
+   Allt sparas lokalt i webbläsaren.
+   ========================================================= */
+const VERSION = "0.1";
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .replace(/\s*[\(\[][^\)\]]*(remaster|version|live|edit|mix|mono|stereo|feat)[^\)\]]*[\)\]]/g,"")
+  .replace(/\s+-\s+.*(remaster|version|live|edit|mix|mono|stereo).*$/,"").replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim();
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const DAY = 864e5;
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const fmtDur = ms => { if (!ms) return ""; const s = Math.round(ms/1000); return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); };
+const fmtLen = ms => { const m = Math.round(ms/60000); return m < 60 ? m + " min" : Math.floor(m/60) + " h " + (m%60) + " min"; };
+const hue = s => { let h = 0; for (const c of String(s)) h = (h*31 + c.charCodeAt(0)) % 360; return h; };
+async function pmap(arr, n, fn){ const out = new Array(arr.length); let i = 0; await Promise.all(Array.from({length: Math.min(n, arr.length)}, async () => { while (i < arr.length){ const j = i++; try { out[j] = await fn(arr[j], j); } catch(e){ out[j] = null; } } })); return out; }
+function openUrl(u){ const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
+
+const IC = {
+  play:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
+  next:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M6 6l8.5 6L6 18zM16 6h2v12h-2z"/></svg>',
+  prev:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18 6l-8.5 6L18 18zM6 6h2v12H6z"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>',
+  spk:'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  shuf:'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 7h3c4 0 6 10 10 10h3M4 17h3c1.5 0 2.6-1.4 3.6-3M14 9.5C15 8 16 7 17 7h3M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>',
+};
+
+/* ---------- Genrer ---------- */
+const GENRES = {
+  pop:{n:"Pop",c:"#C0506A",lfm:"pop",sp:"pop"}, rock:{n:"Rock",c:"#B04A3E",lfm:"rock",sp:"rock"},
+  indie:{n:"Indie",c:"#7B5EA7",lfm:"indie",sp:"indie"}, visa:{n:"Visa & singer-songwriter",c:"#D8962B",lfm:"singer-songwriter",sp:"singer-songwriter"},
+  jazz:{n:"Jazz",c:"#2E9AA6",lfm:"jazz",sp:"jazz"}, soul:{n:"Soul & R&B",c:"#A2603A",lfm:"soul",sp:"soul"},
+  elektroniskt:{n:"Elektroniskt",c:"#3E7CC0",lfm:"electronic",sp:"electronic"}, film:{n:"Filmmusik",c:"#5A6B8C",lfm:"soundtrack",sp:"soundtrack"},
+  klassiskt:{n:"Klassiskt & modern klassisk",c:"#6F7F4A",lfm:"modern classical",sp:"classical"}, country:{n:"Country & americana",c:"#9A7B3C",lfm:"americana",sp:"country"},
+  svenskt:{n:"Svenskt",c:"#3F7D55",lfm:"swedish",sp:"swedish pop"},
+};
+const gcol = t => t && t.g && GENRES[t.g] ? GENRES[t.g].c : "var(--line)";
+
+/* ---------- Demokatalog (används när varken Spotify eller Last.fm är anslutna) ---------- */
+const DEMO = [
+["ABBA","pop svenskt","Dancing Queen|The Winner Takes It All|Mamma Mia"],
+["Roxette","pop rock svenskt","The Look|It Must Have Been Love|Listen to Your Heart"],
+["Robyn","pop elektroniskt svenskt","Dancing On My Own|Call Your Girlfriend|With Every Heartbeat"],
+["Lykke Li","indie pop svenskt","I Follow Rivers|Little Bit"],
+["First Aid Kit","visa country indie svenskt","Emmylou|My Silver Lining|The Lion's Roar"],
+["Veronica Maggio","pop svenskt","Jag kommer|Måndagsbarn|Hela huset"],
+["Håkan Hellström","rock indie svenskt","Känn ingen sorg för mig Göteborg|Det kommer aldrig va över för mig"],
+["Kent","rock indie svenskt","Kärleken väntar|Dom andra"],
+["Laleh","pop visa svenskt","Some Die Young|Goliat"],
+["Lars Winnerbäck","visa rock svenskt","Hum hum från Humlegården|Elegi"],
+["Ted Gärdestad","pop visa svenskt","Sol, vind och vatten|Jag vill ha en egen måne"],
+["Cornelis Vreeswijk","visa jazz svenskt","Felicia – adjö|Somliga går med trasiga skor"],
+["Evert Taube","visa svenskt","Calle Schewens vals|Flickan i Havanna"],
+["Jan Johansson","jazz svenskt","Visa från Utanmyra"],
+["Esbjörn Svensson Trio","jazz svenskt","From Gagarin's Point of View|Seven Days of Falling"],
+["Lisa Ekdahl","jazz visa svenskt","Vem vet|Öppna upp ditt fönster"],
+["The Cardigans","pop indie svenskt","Lovefool|My Favourite Game"],
+["José González","visa indie svenskt","Heartbeats|Crosses"],
+["The Knife","elektroniskt indie svenskt","Heartbeats"],
+["Avicii","elektroniskt pop svenskt","Wake Me Up|Levels"],
+["Fleetwood Mac","rock pop","Dreams|Go Your Own Way|Landslide"],
+["The Beatles","rock pop","Let It Be|Here Comes the Sun|Hey Jude"],
+["Bob Dylan","visa rock","Like a Rolling Stone|Blowin' in the Wind"],
+["Leonard Cohen","visa","Hallelujah|Suzanne|So Long, Marianne"],
+["Joni Mitchell","visa","Both Sides Now|A Case of You|Big Yellow Taxi"],
+["Simon & Garfunkel","visa pop","The Sound of Silence|Bridge Over Troubled Water"],
+["Bruce Springsteen","rock","Born to Run|Dancing in the Dark|The River"],
+["David Bowie","rock pop","Heroes|Life on Mars?|Space Oddity"],
+["Kate Bush","pop indie","Running Up That Hill (A Deal with God)|Wuthering Heights"],
+["Radiohead","rock indie","Creep|Karma Police|No Surprises"],
+["Coldplay","pop rock","Yellow|Fix You|Viva La Vida"],
+["Nick Cave & The Bad Seeds","rock visa","Into My Arms|Red Right Hand"],
+["Tom Waits","visa jazz","Downtown Train|Tom Traubert's Blues"],
+["Johnny Cash","country","Hurt|Ring of Fire"],
+["Bon Iver","indie visa","Skinny Love|Holocene"],
+["Adele","pop soul","Someone Like You|Rolling in the Deep|Hello"],
+["Amy Winehouse","soul jazz","Back to Black|Rehab|Tears Dry On Their Own"],
+["Norah Jones","jazz pop","Don't Know Why|Come Away With Me"],
+["Miles Davis","jazz","So What|Blue in Green"],
+["John Coltrane","jazz","Naima|Giant Steps"],
+["Daft Punk","elektroniskt","Get Lucky|One More Time"],
+["Billie Eilish","pop","bad guy|ocean eyes"],
+["Taylor Swift","pop country","Shake It Off|All Too Well|Anti-Hero"],
+["Hans Zimmer","film","Time|Cornfield Chase"],
+["Ennio Morricone","film","The Ecstasy of Gold|Gabriel's Oboe"],
+["Ludovico Einaudi","klassiskt film","Nuvole Bianche|Experience"],
+["Max Richter","klassiskt film","On the Nature of Daylight"],
+["Jóhann Jóhannsson","klassiskt film","Flight from the City"],
+].map(([a, g, s]) => ({name:a, genres:g.split(" "), songs:s.split("|")}));
+const DEMO_TRACKS = DEMO.flatMap(a => a.songs.map(s => ({name:s, artist:a.name, mainArtist:a.name, g:a.genres[0], demo:1})));
+const demoArtist = n => DEMO.find(a => norm(a.name) === norm(n));
+function demoSimilar(name){
+  const a = demoArtist(name); if (!a) return [];
+  return DEMO.filter(b => b !== a).map(b => ({name:b.name, s:b.genres.filter(g => a.genres.includes(g)).length + (b.genres[0] === a.genres[0] ? .5 : 0)}))
+    .filter(x => x.s >= 1).sort((x, y) => y.s - x.s).slice(0, 10);
+}
+
+/* ---------- Tillstånd ---------- */
+const KEY = "minmusik.v1", TOKKEY = "minmusik.tok", CACHEKEY = "minmusik.cache", RECKEY = "minmusik.recs";
+function defaults(){
+  return {route:"tips", favorites:[], favGenres:[], liked:{}, disliked:{}, playlists:[], recent:[], folds:{}, tipShown:{}, zoom:1,
+    settings:{spClientId:"", lfmKey:"", aiProvider:"anthropic", aiKey:"", aiModel:"claude-sonnet-5-5", aiBase:"https://api.openai.com/v1", deviceId:"", deviceName:"", deviceType:""}};
+}
+let state;
+try { state = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){ state = defaults(); }
+state.settings = Object.assign(defaults().settings, state.settings || {});
+const S = () => state.settings;
+function save(){ state.updatedAt = new Date().toISOString(); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Kunde inte spara – lagringen är full."); } }
+
+/* Cache med livslängd */
+let CACHE = {}; try { CACHE = JSON.parse(localStorage.getItem(CACHEKEY)) || {}; } catch(e){}
+let cacheTimer;
+function cget(k){ const e = CACHE[k]; if (!e) return undefined; if (e.x && e.x < Date.now()){ delete CACHE[k]; return undefined; } return e.v; }
+function cset(k, v, ttl){ CACHE[k] = {v, x: ttl ? Date.now() + ttl : 0}; clearTimeout(cacheTimer); cacheTimer = setTimeout(flushCache, 800); }
+function flushCache(){
+  let keys = Object.keys(CACHE);
+  if (keys.length > 1500){ keys.sort((a, b) => (CACHE[a].x||0) - (CACHE[b].x||0)).slice(0, keys.length - 1200).forEach(k => delete CACHE[k]); }
+  try { localStorage.setItem(CACHEKEY, JSON.stringify(CACHE)); } catch(e){ CACHE = {}; try { localStorage.removeItem(CACHEKEY); } catch(_){} }
+}
+async function cached(k, ttl, fn){ const c = cget(k); if (c !== undefined) return c; const v = await fn(); if (v != null && (!Array.isArray(v) || v.length)) cset(k, v, ttl); return v; }
+function clearRecCache(){ for (const k of Object.keys(CACHE)) if (/^(sa|tt|st|gt):/.test(k)) delete CACHE[k]; flushCache(); RECS.at = 0; }
+
+/* ---------- Låtregister ---------- */
+const TR = new Map();
+const tk = t => norm(t.mainArtist || t.artist) + "|" + norm(t.name);
+function reg(t){ if (!t) return t; const k = tk(t), o = TR.get(k); if (o){ for (const f of ["img","uri","id","url","album","dur","g"]) if (t[f] && !o[f]) o[f] = t[f]; for (const f of ["img","uri","id","url","album","dur"]) if (o[f] && !t[f]) t[f] = o[f]; return o; } TR.set(k, t); return t; }
+const slim = t => { const o = {}; for (const f of ["name","artist","mainArtist","album","img","id","uri","url","dur","g"]) if (t[f]) o[f] = t[f]; return o; };
+const SETS = new Map(); let SETN = 0;
+function setReg(list){ const id = "s" + (++SETN); SETS.set(id, list); if (SETS.size > 400) SETS.delete(SETS.keys().next().value); return id; }
+const isHidden = k => !!state.disliked[k];
+const spUrl = t => t.url || (t.id ? "https://open.spotify.com/track/" + t.id : "https://open.spotify.com/search/" + encodeURIComponent(t.name + " " + (t.mainArtist || t.artist)));
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg, action, fn, ms = 3500){
+  const el = $("#toast"); el.innerHTML = esc(msg) + (action ? `<button class="toastbtn">${esc(action)}</button>` : "");
+  if (action) el.querySelector("button").onclick = () => { el.classList.remove("show"); fn(); };
+  el.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), action ? Math.max(ms, 5500) : ms);
+}
+
+/* =========================================================
+   Spotify – inloggning med PKCE (ingen server behövs)
+   ========================================================= */
+const SP_REDIRECT = location.origin + location.pathname;
+const SCOPES = "user-read-private streaming user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-top-read user-library-read user-library-modify";
+let TOK = null; try { TOK = JSON.parse(localStorage.getItem(TOKKEY)); } catch(e){}
+const SP = {me:null, webId:null, player:null, sdkLoading:false};
+const spOn = () => !!(TOK && TOK.refresh);
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function saveTok(){ try { if (TOK) localStorage.setItem(TOKKEY, JSON.stringify(TOK)); else localStorage.removeItem(TOKKEY); } catch(e){} }
+function setTok(j){ TOK = {access:j.access_token, refresh:j.refresh_token || (TOK && TOK.refresh), exp:Date.now() + (j.expires_in || 3600) * 1000}; saveTok(); }
+
+async function spLogin(){
+  const id = S().spClientId.trim();
+  if (!id){ toast("Fyll i ditt Spotify Client ID först."); go("installningar"); return; }
+  if (location.protocol === "file:"){ toast("Spotify-inloggning kräver att appen öppnas från en webbadress (https eller http://127.0.0.1). Se Inställningar."); return; }
+  if (!crypto.subtle){ toast("Webbläsaren saknar säker kontext (https) – inloggning går inte här."); return; }
+  const v = b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const c = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)));
+  const st = b64url(crypto.getRandomValues(new Uint8Array(12)));
+  localStorage.setItem("minmusik.pkce", JSON.stringify({v, st, redirect:SP_REDIRECT, id}));
+  const url = "https://accounts.spotify.com/authorize?" + new URLSearchParams({client_id:id, response_type:"code", redirect_uri:SP_REDIRECT, code_challenge_method:"S256", code_challenge:c, state:st, scope:SCOPES});
+  if (window.top !== window){ const w = window.open(url, "spauth", "width=480,height=760"); if (!w) location.href = url; }
+  else location.href = url;
+}
+async function spCallback(){
+  const q = new URLSearchParams(location.search);
+  if (!q.has("code") && !q.has("error")) return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  if (q.get("error")){ toast("Spotify: " + (q.get("error") === "access_denied" ? "inloggningen avbröts" : q.get("error"))); return; }
+  let p = null; try { p = JSON.parse(localStorage.getItem("minmusik.pkce")); } catch(e){}
+  if (!p || p.st !== q.get("state")){ toast("Inloggningen kunde inte verifieras – försök igen."); return; }
+  try {
+    const r = await fetch("https://accounts.spotify.com/api/token", {method:"POST", headers:{"content-type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({grant_type:"authorization_code", code:q.get("code"), redirect_uri:p.redirect, client_id:p.id, code_verifier:p.v})});
+    const j = await r.json();
+    if (!r.ok){ toast("Spotify: " + (j.error_description || j.error)); return; }
+    setTok(j); localStorage.removeItem("minmusik.pkce");
+    if (window.opener){ try { window.opener.postMessage({mmTok:TOK}, location.origin); } catch(e){} window.close(); }
+    toast("Ansluten till Spotify.");
+  } catch(e){ toast("Kunde inte nå Spotify: " + e.message); }
+}
+window.addEventListener("message", e => { if (e.origin === location.origin && e.data && e.data.mmTok){ TOK = e.data.mmTok; saveTok(); spConnected(); } });
+window.addEventListener("storage", e => { if (e.key === TOKKEY){ try { TOK = JSON.parse(e.newValue); } catch(_){} if (spOn()) spConnected(); } });
+
+function spLogout(silent){
+  TOK = null; saveTok(); SP.me = null; NOW = null; SP.webId = null;
+  try { SP.player && SP.player.disconnect(); } catch(e){} SP.player = null; SP.sdkLoading = false;
+  if (!silent) toast("Spotify bortkopplat."); render(); renderPbar();
+}
+async function spToken(){
+  if (!TOK) return null;
+  if (Date.now() < TOK.exp - 60e3) return TOK.access;
+  try {
+    const r = await fetch("https://accounts.spotify.com/api/token", {method:"POST", headers:{"content-type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({grant_type:"refresh_token", refresh_token:TOK.refresh, client_id:S().spClientId.trim()})});
+    if (!r.ok){ spLogout(true); toast("Spotify-inloggningen har gått ut – anslut igen under Inställningar."); return null; }
+    setTok(await r.json()); return TOK.access;
+  } catch(e){ return null; }
+}
+async function sp(path, {method = "GET", body} = {}){
+  let tok = await spToken(); if (!tok){ const e = new Error("Inte ansluten till Spotify"); e.status = 0; throw e; }
+  for (let i = 0; i < 3; i++){
+    const r = await fetch(path.startsWith("http") ? path : "https://api.spotify.com/v1" + path,
+      {method, headers:{authorization:"Bearer " + tok, ...(body ? {"content-type":"application/json"} : {})}, body: body ? JSON.stringify(body) : undefined});
+    if (r.status === 429){ await sleep(Math.min(10, +r.headers.get("retry-after") || 2) * 1000); continue; }
+    if (r.status === 401 && i === 0){ TOK.exp = 0; tok = await spToken(); if (!tok) break; continue; }
+    if (r.status === 204 || r.status === 202) return null;
+    const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch(e){}
+    if (!r.ok){ const err = new Error((j && j.error && (j.error.message || j.error)) || ("HTTP " + r.status)); err.status = r.status; err.reason = j && j.error && j.error.reason; throw err; }
+    return j;
+  }
+  const e = new Error("Spotify svarar inte just nu"); e.status = 429; throw e;
+}
+const pickImg = im => { if (!im || !im.length) return ""; const s = [...im].sort((a, b) => (a.width||0) - (b.width||0)); return (s.find(i => (i.width||0) >= 200) || s[s.length-1]).url; };
+function fromSp(t){
+  if (!t || !t.name) return null;
+  return reg({name:t.name, artist:(t.artists||[]).map(a => a.name).join(", "), mainArtist:t.artists && t.artists[0] && t.artists[0].name,
+    album:t.album && t.album.name, img:pickImg(t.album && t.album.images), id:t.id, uri:t.uri, url:t.external_urls && t.external_urls.spotify, dur:t.duration_ms});
+}
+async function spConnected(){
+  try { SP.me = await sp("/me"); } catch(e){ if (e.status === 403) toast("Spotify nekar åtkomst. Lägg till ditt Spotify-konto under User Management i Spotify Dashboard."); }
+  loadSDK(); pollNow(); render();
+}
+
+/* Matcha en låt (från Last.fm, AI eller demo) mot Spotify */
+async function resolve(t){
+  if (!t || t.uri) return t;
+  const k = tk(t), c = cget("res:" + k);
+  if (c){ if (!c.none){ Object.assign(t, c); reg(t); } return t; }
+  if (!spOn()) return t;
+  const art = t.mainArtist || t.artist;
+  const score = x => { const a = norm(x.name), b = norm(t.name), A = norm(x.mainArtist), B = norm(art);
+    return (a === b ? 2 : (a.includes(b) || b.includes(a)) ? 1 : 0) + (A === B ? 2 : (A.includes(B) || B.includes(A)) ? 1 : 0); };
+  try {
+    let j = await sp(`/search?type=track&limit=5&q=${encodeURIComponent(`track:${t.name.replace(/"/g,"")} artist:${art.replace(/"/g,"")}`)}`);
+    let items = ((j && j.tracks && j.tracks.items) || []).map(fromSp).filter(Boolean);
+    if (!items.some(x => score(x) >= 3)){ j = await sp(`/search?type=track&limit=5&q=${encodeURIComponent(t.name + " " + art)}`); items = items.concat(((j && j.tracks && j.tracks.items) || []).map(fromSp).filter(Boolean)); }
+    const best = items.map(x => ({x, s:score(x)})).sort((a, b) => b.s - a.s)[0];
+    if (best && best.s >= 3){ const keep = {id:best.x.id, uri:best.x.uri, url:best.x.url, img:best.x.img, album:best.x.album, dur:best.x.dur}; cset("res:" + k, keep, 60*DAY); Object.assign(t, keep); reg(t); }
+    else cset("res:" + k, {none:1}, 14*DAY);
+  } catch(e){}
+  return t;
+}
+/* Fyll i omslag i efterhand */
+const IMGQ = new Set(); let imgRunning = false;
+function fillImages(){
+  $$("[data-needimg]").forEach(el => { const t = TR.get(el.dataset.needimg); const c = t && cget("res:" + tk(t)); if (t && (t.img || (c && c.img))){ if (c && c.img) Object.assign(t, c); setCov(el, t); } else if (spOn()) IMGQ.add(el.dataset.needimg); });
+  if (!imgRunning && IMGQ.size) runImgQ();
+}
+function setCov(el, t){ el.classList.remove("ph"); el.removeAttribute("data-needimg"); el.innerHTML = `<img src="${esc(t.img)}" alt="" loading="lazy">`; }
+async function runImgQ(){
+  imgRunning = true;
+  while (IMGQ.size){
+    const batch = [...IMGQ].slice(0, 3); batch.forEach(k => IMGQ.delete(k));
+    await Promise.all(batch.map(async k => { const t = TR.get(k); if (!t) return; await resolve(t); if (t.img) $$(`[data-needimg="${CSS.escape(k)}"]`).forEach(el => setCov(el, t)); }));
+  }
+  imgRunning = false;
+}
+
+/* ---------- Spotify-spelaren i webbläsaren (Web Playback SDK, dator) ---------- */
+function loadSDK(){
+  if (IS_MOBILE || SP.sdkLoading || !spOn()) return; SP.sdkLoading = true;
+  window.onSpotifyWebPlaybackSDKReady = () => {
+    const p = new Spotify.Player({name:"Min musik (webbläsare)", getOAuthToken: cb => spToken().then(t => t && cb(t)), volume:0.8});
+    p.addListener("ready", ({device_id}) => { SP.webId = device_id; });
+    p.addListener("not_ready", () => { SP.webId = null; });
+    p.addListener("player_state_changed", s => { if (s && s.track_window && s.track_window.current_track) nowFromSdk(s); });
+    p.addListener("authentication_error", ({message}) => console.warn("SDK auth", message));
+    p.addListener("account_error", () => toast("Uppspelning i webbläsaren kräver Spotify Premium."));
+    p.addListener("initialization_error", ({message}) => console.warn("SDK init", message));
+    p.connect(); SP.player = p;
+  };
+  const s = document.createElement("script"); s.src = "https://sdk.scdn.co/spotify-player.js"; s.async = true; document.head.appendChild(s);
+}
+
+/* ---------- Uppspelning ---------- */
+let NOW = null, PENDING = null;
+async function playTracks(list, startIdx = 0){
+  list = (list || []).filter(Boolean); if (!list.length) return;
+  if (!spOn()){ openUrl(spUrl(list[startIdx] || list[0])); toast("Öppnar i Spotify. Anslut Spotify under Inställningar så spelas musiken direkt i appen."); addRecent(list[startIdx] || list[0]); return; }
+  try { SP.player && SP.player.activateElement && SP.player.activateElement(); } catch(e){}
+  const slice = list.slice(startIdx, startIdx + 100);
+  if (slice.length > 1) toast(`Förbereder ${slice.length} låtar…`);
+  const res = await pmap(slice, 4, resolve);
+  const uris = res.filter(t => t && t.uri).map(t => t.uri);
+  if (!uris.length){ toast("Hittade inte låten på Spotify."); return; }
+  await spPlay({uris});
+  addRecent(slice[0]);
+}
+function findPref(list){
+  const s = S(); if (!s.deviceId && !s.deviceName) return null;
+  if (s.deviceId === "web") return SP.webId ? {id:SP.webId} : null;
+  return list.find(x => x.id === s.deviceId) || list.find(x => s.deviceName && x.name && x.name.toLowerCase() === s.deviceName.toLowerCase()) || null;
+}
+async function getDevices(){
+  let list = [];
+  try { const d = await sp("/me/player/devices"); list = (d && d.devices) || []; } catch(e){}
+  if (SP.webId && !list.some(d => d.id === SP.webId)) list.unshift({id:SP.webId, name:"Den här webbläsaren", type:"Computer", web:true});
+  list.forEach(d => { if (d.id === SP.webId){ d.web = true; d.name = "Den här webbläsaren"; } });
+  return list;
+}
+async function pickDevice(){
+  let list = [];
+  try { const d = await sp("/me/player/devices"); list = (d && d.devices) || []; } catch(e){}
+  const pref = findPref(list); if (pref) return pref.id;
+  const act = list.find(x => x.is_active); if (act) return act.id;
+  if (SP.webId && !S().deviceName) return SP.webId;
+  if (S().deviceName) return null;   // standardenheten syns inte – låt användaren välja
+  if (SP.webId) return SP.webId;
+  if (list.length === 1) return list[0].id;
+  return null;
+}
+async function spPlay(body, deviceId){
+  const dev = deviceId || await pickDevice();
+  if (!dev){ PENDING = body; openDevices(); return; }
+  try { await sp(`/me/player/play?device_id=${encodeURIComponent(dev)}`, {method:"PUT", body}); PENDING = null; setTimeout(pollNow, 900); setTimeout(pollNow, 2500); }
+  catch(e){
+    if (e.status === 404 || e.reason === "NO_ACTIVE_DEVICE"){ PENDING = body; openDevices(); }
+    else if (e.status === 403) toast("Spotify tillåter inte uppspelningen här (kräver Premium).");
+    else toast("Spotify: " + e.message);
+  }
+}
+async function pc(cmd){
+  if (!spOn()) return;
+  const web = NOW && NOW.dev && NOW.dev.id && NOW.dev.id === SP.webId && SP.player;
+  try {
+    if (cmd === "toggle"){
+      if (web) await SP.player.togglePlay();
+      else if (NOW && NOW.playing) await sp("/me/player/pause", {method:"PUT"});
+      else { const dev = await pickDevice(); if (!dev){ openDevices(); return; } await sp("/me/player/play?device_id=" + dev, {method:"PUT"}); }
+      if (NOW) NOW.playing = !NOW.playing; renderPbar();
+    }
+    if (cmd === "next") web ? await SP.player.nextTrack() : await sp("/me/player/next", {method:"POST"});
+    if (cmd === "prev") web ? await SP.player.previousTrack() : await sp("/me/player/previous", {method:"POST"});
+    setTimeout(pollNow, 700);
+  } catch(e){ if (e.status === 404) openDevices(); else toast("Spotify: " + e.message); }
+}
+async function pollNow(){
+  if (!spOn() || document.hidden) return;
+  try {
+    const j = await sp("/me/player?additional_types=track");
+    if (j && j.item){ const was = NOW && NOW.t && NOW.t.uri; NOW = {t:fromSp(j.item), playing:j.is_playing, dev:j.device}; if (was !== NOW.t.uri) markNow(); }
+    else if (!j) NOW = null;
+    renderPbar();
+  } catch(e){}
+}
+function nowFromSdk(s){
+  const it = s.track_window.current_track;
+  NOW = {t:reg({name:it.name, artist:it.artists.map(a => a.name).join(", "), mainArtist:it.artists[0] && it.artists[0].name, album:it.album.name, img:pickImg(it.album.images), uri:it.uri, id:it.id}),
+    playing:!s.paused, dev:{id:SP.webId, name:"Den här webbläsaren", volume_percent:null}};
+  renderPbar(); markNow();
+}
+function markNow(){ $$(".trk.now").forEach(e => e.classList.remove("now")); if (NOW && NOW.t) $$(`.trk[data-open="${CSS.escape(tk(NOW.t))}"]`).forEach(e => e.classList.add("now")); }
+setInterval(pollNow, 6000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pollNow(); });
+
+function renderPbar(){
+  const el = $("#pbar"), show = spOn() && NOW && NOW.t;
+  el.hidden = !show; document.body.classList.toggle("hasplayer", !!show);
+  $("#spbtn").textContent = spBtnText();
+  if (!show) return;
+  const t = NOW.t, k = tk(t);
+  el.innerHTML = `${cover(t)}<div class="pbt" data-open="${esc(k)}"><b>${esc(t.name)}</b><span>${esc(t.artist)}${NOW.dev && NOW.dev.name ? " · " + esc(NOW.dev.name) : ""}</span></div>
+    <button class="heart ${state.liked[k] ? "on" : ""}" data-heart="${esc(k)}" aria-label="Gilla">♥</button>
+    <button class="ib" data-pc="prev" aria-label="Föregående">${IC.prev}</button>
+    <button class="ib big" data-pc="toggle" aria-label="${NOW.playing ? "Pausa" : "Spela"}">${NOW.playing ? IC.pause : IC.play}</button>
+    <button class="ib" data-pc="next" aria-label="Nästa">${IC.next}</button>
+    <button class="ib" data-devices="1" aria-label="Välj högtalare" title="Högtalare och enheter">${IC.spk}</button>`;
+  fillImages();
+}
+function addRecent(t){ if (!t) return; const k = tk(t); state.recent = [slim(t), ...state.recent.filter(x => tk(x) !== k)].slice(0, 40); save(); }
+
+/* ---------- Enheter: wifi (Spotify Connect) och Bluetooth ---------- */
+const DEVTYPE = {Computer:"Dator", Smartphone:"Telefon", Speaker:"Högtalare", TV:"TV", CastVideo:"Chromecast", CastAudio:"Chromecast-ljud", AVR:"Förstärkare/streamer", Tablet:"Surfplatta", Automobile:"Bil", GameConsole:"Spelkonsol"};
+function devRows(list, mode){
+  const s = S(), pref = findPref(list);
+  return list.map(d => {
+    const isPref = pref && pref.id === d.id, wifi = !d.web && d.type !== "Smartphone" && d.type !== "Computer";
+    return `<div class="dev ${d.is_active ? "on" : ""}" ${mode === "play" ? `data-dev="${esc(d.id)}"` : `data-setdev="${esc(d.id)}"`} data-devname="${esc(d.name)}" data-devtype="${esc(d.type || "")}">
+      <div class="grow"><b>${esc(d.name)}</b><div class="m">${esc(DEVTYPE[d.type] || d.type || "")}${wifi ? " · wifi" : ""}${d.is_active ? " · spelar nu" : ""}${d.is_restricted ? " · kan inte styras" : ""}</div></div>
+      ${isPref ? `<span class="tag on" style="font-size:13px">Standard</span>` : ""}</div>`;
+  }).join("");
+}
+async function openDevices(){
+  if (!spOn()){ openSheet(`<h3>Spela upp</h3><p class="hint">Anslut Spotify under Inställningar för att välja högtalare.</p>`); return; }
+  openSheet(`<h3>Spela på</h3><div id="devlist"><div class="empty"><span class="spin"></span>Letar efter enheter…</div></div>`);
+  const list = await getDevices(), s = S(), pref = findPref(list);
+  const vol = NOW && NOW.dev && NOW.dev.volume_percent != null && NOW.dev.supports_volume !== false ? NOW.dev.volume_percent : null;
+  const missing = s.deviceName && s.deviceId !== "web" && !pref;
+  const el = $("#devlist"); if (!el) return;
+  el.innerHTML = (PENDING ? `<p class="hint" style="margin-top:0">Välj var musiken ska spelas. Valet sparas som standard.</p>` : `<p class="hint" style="margin-top:0">Tryck på en enhet för att flytta musiken dit. Den blir då din standardenhet.</p>`)
+    + (missing ? `<div class="warnbox"><b>${esc(s.deviceName)}</b> syns inte just nu. ${wakeHelp(s.deviceName)}</div>` : "")
+    + (list.length ? devRows(list, "play") : `<div class="empty">Inga enheter hittades.</div>`)
+    + (vol != null ? `<label class="f">Volym på ${esc(NOW.dev.name || "enheten")}</label><input type="range" min="0" max="100" value="${vol}" id="vol">` : "")
+    + `<div class="acts"><button class="btn sm" data-devices="1">Sök igen</button><button class="btn sm" data-openspotify="1">Öppna Spotify</button></div>
+       <h4>Wifi-högtalare (t.ex. WiiM)</h4><p class="hint">Enheter med Spotify Connect på samma nätverk visas här när de är vakna och kopplade till ditt Spotify-konto. ${IS_MOBILE ? "I mobilen syns telefonen när Spotify-appen är öppen." : ""}</p>
+       <h4>Bluetooth</h4><p class="hint">Koppla hörlurar eller högtalare till den här ${IS_MOBILE ? "telefonen" : "datorn"} i systemets inställningar och välj ${IS_MOBILE ? "telefonen" : "”Den här webbläsaren”"} ovan.</p>`;
+}
+function wakeHelp(name){
+  return `Så väcker du den: se till att ${esc(name)} är på och på samma wifi, öppna Spotify-appen på telefonen, tryck på enhetsikonen och välj ${esc(name)} en gång. Tryck sedan ”Sök igen”. ${/wiim/i.test(name) ? "Kontrollera i WiiM Home-appen att Spotify Connect är på och kopplat till samma konto." : ""}`;
+}
+function setPrefDevice(id, name, type){
+  const web = id && id === SP.webId;
+  Object.assign(state.settings, {deviceId: web ? "web" : id, deviceName: web ? "Den här webbläsaren" : (name || ""), deviceType: type || ""}); save();
+  $("#spbtn") && ($("#spbtn").textContent = spBtnText());
+}
+async function chooseDevice(id, name, type){
+  setPrefDevice(id, name, type);
+  try {
+    if (PENDING){ const b = PENDING; closeSheet(); await spPlay(b, id); }
+    else { await sp("/me/player", {method:"PUT", body:{device_ids:[id], play:true}}); closeSheet(); setTimeout(pollNow, 1000); }
+  } catch(e){ toast("Kunde inte byta enhet: " + e.message); }
+}
+
+/* =========================================================
+   Last.fm – liknande artister och låtar
+   ========================================================= */
+async function lfm(method, params){
+  const key = S().lfmKey.trim(); if (!key) return null;
+  try {
+    const r = await fetch("https://ws.audioscrobbler.com/2.0/?" + new URLSearchParams({method, api_key:key, format:"json", autocorrect:1, ...params}));
+    const j = await r.json();
+    if (j.error){ if (j.error === 10 || j.error === 26) toast("Last.fm-nyckeln fungerar inte – kontrollera den under Inställningar."); return null; }
+    return j;
+  } catch(e){ return null; }
+}
+const arr = x => !x ? [] : Array.isArray(x) ? x : [x];
+
+/* =========================================================
+   AI (samma upplägg som i Min tablå: egen nyckel)
+   ========================================================= */
+const aiOn = () => !!S().aiKey.trim();
+const AI_SYS = `Du är musiktipsaren i appen Min musik. Svara på svenska, personligt och kort. När du föreslår låtar: skriv en kort motivering och avsluta ALLTID med ett kodblock:
+\`\`\`json
+{"name":"förslag på spellistnamn","songs":[{"artist":"Artist","title":"Låttitel"}]}
+\`\`\`
+Föreslå bara låtar som verkligen finns, med exakt artistnamn och titel. Undvik låtar användaren ogillar.`;
+function aiContext(){
+  const fa = state.favorites.filter(f => f.type === "artist").map(f => f.name), fl = state.favorites.filter(f => f.type === "låt").map(f => `${f.name} (${f.artist})`);
+  const li = Object.values(state.liked).slice(-25).map(t => `${t.name} – ${t.artist}`), di = Object.values(state.disliked).slice(-15).map(t => `${t.name} – ${t.artist}`);
+  return `Favoritartister/grupper: ${fa.join(", ") || "–"}\nFavoritlåtar: ${fl.join(", ") || "–"}\nFavoritgenrer: ${state.favGenres.map(g => GENRES[g].n).join(", ") || "–"}\nGillade låtar: ${li.join("; ") || "–"}\nOgillar: ${di.join("; ") || "–"}`;
+}
+async function askAI(user, sys = AI_SYS){
+  const s = S();
+  if (s.aiProvider === "anthropic"){
+    const r = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", headers:{"content-type":"application/json", "x-api-key":s.aiKey.trim(), "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:s.aiModel || "claude-sonnet-5-5", max_tokens:2000, system:sys, messages:[{role:"user", content:user}]})});
+    const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
+    return (j.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+  }
+  const r = await fetch(s.aiBase.replace(/\/$/, "") + "/chat/completions", {method:"POST", headers:{"content-type":"application/json", authorization:"Bearer " + s.aiKey.trim()},
+    body:JSON.stringify({model:s.aiModel || "gpt-4o-mini", messages:[{role:"system", content:sys}, {role:"user", content:user}]})});
+  const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
+  return j.choices[0].message.content;
+}
+function parseAI(txt){
+  const m = txt.match(/```(?:json)?\s*([\s\S]*?)```/) || txt.match(/(\{[\s\S]*"songs"[\s\S]*\})/);
+  let data = null; if (m){ try { data = JSON.parse(m[1]); } catch(e){} }
+  const songs = ((data && data.songs) || []).filter(s => s && s.title && s.artist).map(s => reg({name:String(s.title), artist:String(s.artist), mainArtist:String(s.artist)}));
+  return {text: txt.replace(m ? m[0] : "", "").trim(), songs, name: data && data.name};
+}
+async function aiJson(prompt){
+  try { const txt = await askAI(prompt + "\nSvara ENBART med giltig JSON, utan annan text.", "Du är en musikexpert. Svara bara med giltig JSON."); const m = txt.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; }
+  catch(e){ return null; }
+}
+
+/* =========================================================
+   Källor för rekommendationer (Last.fm → Spotify → demo → AI)
+   ========================================================= */
+async function similarArtists(name){
+  return (await cached("sa:" + norm(name), 7*DAY, async () => {
+    if (S().lfmKey){ const j = await lfm("artist.getsimilar", {artist:name, limit:15}); const a = arr(j && j.similarartists && j.similarartists.artist); if (a.length) return a.map(x => ({name:x.name})); }
+    const d = demoSimilar(name); if (d.length && !spOn()) return d;
+    if (aiOn()){ const r = await aiJson(`Ge 12 artister eller grupper som låter som ${name}. Format: {"artists":["Namn"]}`); if (r && r.artists) return r.artists.slice(0, 12).map(n => ({name:String(n)})); }
+    return d;
+  })) || [];
+}
+async function artistTopTracks(name, n = 5){
+  const list = (await cached("tt:" + norm(name), 7*DAY, async () => {
+    if (S().lfmKey){ const j = await lfm("artist.gettoptracks", {artist:name, limit:10}); const a = arr(j && j.toptracks && j.toptracks.track); if (a.length) return a.map(x => ({name:x.name, artist:x.artist.name, mainArtist:x.artist.name})); }
+    if (spOn()){ try { const j = await sp(`/search?type=track&limit=10&q=${encodeURIComponent(`artist:"${name.replace(/"/g,"")}"`)}`);
+      const a = ((j && j.tracks && j.tracks.items) || []).map(fromSp).filter(t => t && norm(t.mainArtist) === norm(name)); if (a.length) return a.map(slim); } catch(e){} }
+    const d = DEMO_TRACKS.filter(t => norm(t.artist) === norm(name)); if (d.length) return d;
+    if (aiOn()){ const r = await aiJson(`Lista ${name}s 6 mest kända låtar. Format: {"songs":["Titel"]}`); if (r && r.songs) return r.songs.map(s => ({name:String(s), artist:name, mainArtist:name})); }
+    return [];
+  })) || [];
+  return list.slice(0, n).map(t => reg({...t}));
+}
+async function similarTracks(t){
+  const art = t.mainArtist || t.artist;
+  const list = (await cached("st:" + tk(t), 7*DAY, async () => {
+    if (S().lfmKey){ const j = await lfm("track.getsimilar", {artist:art, track:t.name, limit:30}); const a = arr(j && j.similartracks && j.similartracks.track); if (a.length) return a.map(x => ({name:x.name, artist:x.artist.name, mainArtist:x.artist.name})); }
+    const sims = (await similarArtists(art)).slice(0, 8), out = [];
+    const tops = await pmap(sims, 3, a => artistTopTracks(a.name, 2));
+    tops.forEach(l => (l || []).forEach(x => out.push(slim(x))));
+    return out;
+  })) || [];
+  return list.map(x => reg({...x}));
+}
+async function genreTracks(g){
+  const G = GENRES[g];
+  const list = (await cached("gt:" + g, 3*DAY, async () => {
+    if (S().lfmKey){ const j = await lfm("tag.gettoptracks", {tag:G.lfm, limit:40}); const a = arr(j && j.tracks && j.tracks.track); if (a.length) return a.map(x => ({name:x.name, artist:x.artist.name, mainArtist:x.artist.name, g})); }
+    if (spOn()){ try { const out = []; for (const off of [0, 10]){ const j = await sp(`/search?type=track&limit=10&offset=${off}&q=${encodeURIComponent(`genre:"${G.sp}"`)}`); ((j && j.tracks && j.tracks.items) || []).map(fromSp).filter(Boolean).forEach(t => out.push({...slim(t), g})); } if (out.length) return out; } catch(e){} }
+    return DEMO_TRACKS.filter(t => DEMO.find(a => a.name === t.artist).genres.includes(g)).map(t => ({...t, g}));
+  })) || [];
+  return list.map(x => reg({...x}));
+}
+
+/* ---------- Rekommendationsmotor ---------- */
+let RECS = {groups:[], list:[], genre:{}, at:0, sig:"", busy:false};
+try { const r = JSON.parse(localStorage.getItem(RECKEY)); if (r){ RECS = Object.assign(RECS, r, {busy:false}); RECS.groups.forEach(g => g.tracks = g.tracks.map(reg)); RECS.list.forEach(x => x.t = reg(x.t)); for (const g in RECS.genre) RECS.genre[g] = RECS.genre[g].map(reg); } } catch(e){}
+const recSig = () => JSON.stringify([state.favorites.map(f => f.type + f.name + (f.artist||"")), state.favGenres, Object.keys(state.liked).slice(-5), !!S().lfmKey, spOn(), aiOn()]);
+async function buildRecs(force){
+  if (RECS.busy) return;
+  if (!force && RECS.sig === recSig() && Date.now() - RECS.at < 12*3600e3) return;
+  RECS.busy = true; if (state.route === "tips") render();
+  try {
+    const pool = new Map(), groups = [], genre = {};
+    const add = (t, s, reason) => { const k = tk(t); if (isHidden(k) || state.liked[k]) return; const e = pool.get(k) || {t, score:0, reason, n:0}; e.score += s; e.n++; if (!e.reason) e.reason = reason; pool.set(k, e); };
+    await pmap(state.favorites.slice(0, 15), 2, async f => {
+      if (f.type === "artist"){
+        const sims = (await similarArtists(f.name)).slice(0, 8);
+        const tops = await pmap(sims, 3, a => artistTopTracks(a.name, 2));
+        const tracks = [];
+        tops.forEach((l, i) => (l || []).forEach((t, j) => { tracks.push(t); add(t, 5 - i*.4 - j, `Liknar ${f.name}`); }));
+        groups.push({fav:f, title:`Liknar ${f.name}`, tracks:tracks.filter(t => !isHidden(tk(t)))});
+      } else {
+        const tt = await similarTracks({name:f.name, artist:f.artist, mainArtist:f.artist});
+        tt.forEach((t, i) => add(t, 5 - Math.min(4, i*.15), `Liknar ${f.name}`));
+        groups.push({fav:f, title:`Liknar ${f.name} (${f.artist})`, tracks:tt.filter(t => !isHidden(tk(t))).slice(0, 14)});
+      }
+    });
+    const seeds = Object.values(state.liked).slice(-5);
+    await pmap(seeds, 2, async s => { (await similarTracks(s)).slice(0, 12).forEach((t, i) => add(t, 3 - i*.1, `För att du gillade ${s.name}`)); });
+    await pmap(state.favGenres, 2, async g => { const l = await genreTracks(g); genre[g] = l.filter(t => !isHidden(tk(t))).slice(0, 14); l.slice(0, 20).forEach((t, i) => add(t, 1.6 - i*.03, `Du gillar ${GENRES[g].n.toLowerCase()}`)); });
+    const shown = state.tipShown || {};
+    for (const e of pool.values()){ if (e.n > 1) e.score += e.n; const sh = shown[tk(e.t)]; if (sh && Date.now() - sh.last < 10*DAY) e.score -= Math.min(6, Math.max(0, sh.n - 2) * 1.5); }
+    const order = state.favorites.map(f => f.type + f.name);
+    groups.sort((a, b) => order.indexOf(a.fav.type + a.fav.name) - order.indexOf(b.fav.type + b.fav.name));
+    RECS = {groups, list:[...pool.values()].sort((a, b) => b.score - a.score).slice(0, 120), genre, at:Date.now(), sig:recSig(), busy:false};
+    try { localStorage.setItem(RECKEY, JSON.stringify({groups:groups.map(g => ({...g, tracks:g.tracks.map(slim)})), list:RECS.list.map(x => ({...x, t:slim(x.t)})), genre:Object.fromEntries(Object.entries(genre).map(([k, v]) => [k, v.map(slim)])), at:RECS.at, sig:RECS.sig})); } catch(e){}
+  } catch(e){ console.warn(e); RECS.busy = false; }
+  RECS.busy = false;
+  if (state.route === "tips") render();
+}
+function markShown(list){ const sh = state.tipShown || (state.tipShown = {}), today = new Date().toDateString(); list.forEach(t => { const k = tk(t), e = sh[k] || {n:0, last:0}; if (new Date(e.last).toDateString() !== today){ e.n++; e.last = Date.now(); } sh[k] = e; }); const ks = Object.keys(sh); if (ks.length > 600) ks.slice(0, ks.length - 500).forEach(k => delete sh[k]); }
+
+/* =========================================================
+   Gilla, dölj, favoriter, spellistor
+   ========================================================= */
+function toggleLike(k){
+  const t = TR.get(k); if (!t) return;
+  if (state.liked[k]) delete state.liked[k]; else { state.liked[k] = slim(t); delete state.disliked[k]; spLibrary(t, true); }
+  const on = !!state.liked[k];
+  $$(`[data-heart="${CSS.escape(k)}"]`).forEach(b => b.classList.toggle("on", on));
+  save(); toast(on ? "Gillad – tipsen anpassas efter den" : "Inte längre gillad");
+  if (state.route === "mitt") render();
+}
+async function spLibrary(t, on){
+  if (!spOn() || !S().syncLibrary) return;
+  try { await resolve(t); if (t.uri) await sp(`/me/library?uris=${encodeURIComponent(t.uri)}`, {method: on ? "PUT" : "DELETE"}); } catch(e){}
+}
+function hideTrack(k, el){
+  const t = TR.get(k); if (!t) return;
+  state.disliked[k] = slim(t); delete state.liked[k]; save();
+  $$(`.trk[data-open="${CSS.escape(k)}"], .mini[data-open="${CSS.escape(k)}"]`).forEach(e => { if (!e.closest(".inpl-list")) e.remove(); });
+  RECS.list = RECS.list.filter(x => tk(x.t) !== k);
+  toast("Dold – du får inte den som tips igen", "Ångra", () => { delete state.disliked[k]; save(); render(); });
+}
+function isFavArtist(name){ return state.favorites.some(f => f.type === "artist" && norm(f.name) === norm(name)); }
+function toggleFavArtist(name){
+  if (isFavArtist(name)){ state.favorites = state.favorites.filter(f => !(f.type === "artist" && norm(f.name) === norm(name))); toast(`${name} borttagen från favoriter`); }
+  else { state.favorites.unshift({type:"artist", name}); toast(`${name} tillagd som favorit – hämtar liknande musik`); }
+  save(); buildRecs(true);
+}
+function addFavSong(t){
+  if (state.favorites.some(f => f.type === "låt" && norm(f.name) === norm(t.name) && norm(f.artist) === norm(t.mainArtist || t.artist))){ toast("Finns redan bland favoriterna"); return; }
+  state.favorites.unshift({type:"låt", name:t.name, artist:t.mainArtist || t.artist}); save(); toast("Låten är favorit – hämtar liknande"); buildRecs(true);
+}
+const plById = id => state.playlists.find(p => p.id === id);
+function newPlaylist(name, tracks = [], extra = {}){
+  const now = new Date().toISOString(), seen = new Set();
+  const pl = {id:uid(), name:name || "Ny spellista", desc:"", tracks:tracks.filter(t => { const k = tk(t); if (seen.has(k)) return false; seen.add(k); return true; }).map(slim), created:now, updated:now, ...extra};
+  state.playlists.unshift(pl); save(); return pl;
+}
+function addToPlaylist(id, list){
+  const pl = plById(id); if (!pl) return;
+  const have = new Set(pl.tracks.map(tk)), add = list.filter(t => t && !have.has(tk(t)));
+  if (!add.length){ toast("Finns redan i " + pl.name); return; }
+  pl.tracks.push(...add.map(slim)); pl.updated = new Date().toISOString(); save();
+  toast(add.length === 1 ? `Tillagd i ${pl.name}` : `${add.length} låtar tillagda i ${pl.name}`, "Ångra", () => { const ks = new Set(add.map(tk)); pl.tracks = pl.tracks.filter(t => !ks.has(tk(t))); save(); render(); });
+  if (state.route === "lista:" + id) render();
+}
+function openAddTo(list){
+  const id = setReg(list);
+  openSheet(`<h3>Lägg i spellista</h3><div class="hint">${list.length === 1 ? esc(list[0].name) + " – " + esc(list[0].artist) : list.length + " låtar"}</div>
+    <div class="inl" style="margin-top:14px"><input type="text" id="newplname" placeholder="Ny spellista – skriv ett namn" enterkeyhint="done"><button class="go" data-newpl="${id}" aria-label="Skapa">＋</button></div>
+    ${state.playlists.map(p => `<div class="pick" data-addto="${p.id}" data-set="${id}"><b>${esc(p.name)}</b><span class="m">${p.tracks.length} låtar</span></div>`).join("") || `<div class="empty">Du har inga spellistor än.</div>`}`);
+  $("#newplname").focus();
+}
+async function fillPlaylist(pl, n = 10){
+  toast("Letar efter liknande låtar…");
+  const seeds = [...pl.tracks].sort(() => Math.random() - .5).slice(0, 5), have = new Set(pl.tracks.map(tk)), cand = new Map();
+  const res = await pmap(seeds, 2, s => similarTracks(s));
+  res.forEach(l => (l || []).slice(0, 15).forEach((t, i) => { const k = tk(t); if (have.has(k) || isHidden(k)) return; const e = cand.get(k) || {t, s:0}; e.s += 15 - i; cand.set(k, e); }));
+  const add = [...cand.values()].sort((a, b) => b.s - a.s).slice(0, n).map(e => e.t);
+  if (!add.length){ toast("Hittade inga nya förslag – lägg in en Last.fm-nyckel för bättre träffar."); return; }
+  addToPlaylist(pl.id, add);
+}
+async function artistRadio(name){
+  toast(`Bygger radio utifrån ${name}…`);
+  const own = await artistTopTracks(name, 3), sims = (await similarArtists(name)).slice(0, 10);
+  const tops = await pmap(sims, 3, a => artistTopTracks(a.name, 2)), out = [...own];
+  tops.forEach(l => (l || []).forEach(t => out.push(t)));
+  const list = out.filter(t => !isHidden(tk(t)));
+  if (!list.length){ toast("Hittade inget att bygga radio av."); return; }
+  const pl = newPlaylist("Radio: " + name, list, {desc:"Byggd på " + name + " och liknande artister"});
+  closeSheet(); go("lista:" + pl.id); toast(`Spellistan ”${pl.name}” skapades med ${pl.tracks.length} låtar`);
+}
+
+/* ---------- Spara spellista till Spotify ---------- */
+async function exportToSpotify(pl){
+  if (!spOn()){ toast("Anslut Spotify under Inställningar först."); return; }
+  toast(`Matchar ${pl.tracks.length} låtar mot Spotify…`, null, null, 15000);
+  const res = await pmap(pl.tracks, 4, t => resolve(t)); save();
+  const uris = res.filter(t => t && t.uri).map(t => t.uri);
+  if (!uris.length){ toast("Hittade inga av låtarna på Spotify."); return; }
+  try {
+    if (pl.spotifyId){ try { await sp(`/playlists/${pl.spotifyId}`); } catch(e){ if (e.status === 404) pl.spotifyId = null; else throw e; } }
+    if (!pl.spotifyId){ const p = await sp("/me/playlists", {method:"POST", body:{name:pl.name, description:pl.desc || "Skapad i Min musik", public:false}}); pl.spotifyId = p.id; pl.spotifyUrl = p.external_urls && p.external_urls.spotify; }
+    await sp(`/playlists/${pl.spotifyId}/items`, {method:"PUT", body:{uris:uris.slice(0, 100)}});
+    for (let i = 100; i < uris.length; i += 100) await sp(`/playlists/${pl.spotifyId}/items`, {method:"POST", body:{uris:uris.slice(i, i + 100)}});
+    pl.syncedAt = new Date().toISOString(); save(); render();
+    toast(`Sparad i Spotify – ${uris.length} av ${pl.tracks.length} låtar hittades`, "Öppna", () => openUrl(pl.spotifyUrl || "https://open.spotify.com/playlist/" + pl.spotifyId));
+  } catch(e){
+    toast(e.status === 403 ? "Spotify nekade (403). Kontrollera att ditt konto finns under User Management i Spotify Dashboard och anslut igen." : "Kunde inte spara: " + e.message, null, null, 8000);
+  }
+}
+async function importSpotifyLists(){
+  if (!spOn()){ toast("Anslut Spotify först."); return; }
+  openSheet(`<h3>Hämta från Spotify</h3><div id="spl"><div class="empty"><span class="spin"></span>Hämtar dina spellistor…</div></div>`);
+  try {
+    const j = await sp("/me/playlists?limit=50"), items = (j && j.items) || [];
+    $("#spl").innerHTML = items.length ? `<p class="hint">Spotify låter appar läsa låtar bara i spellistor du äger eller samarbetar i.</p>` + items.map(p => `<div class="pick" data-imp="${esc(p.id)}"><b>${esc(p.name)}</b><span class="m">${(p.items || p.tracks || {}).total ?? ""} låtar</span></div>`).join("") : `<div class="empty">Inga spellistor hittades.</div>`;
+  } catch(e){ $("#spl").innerHTML = `<div class="empty">Kunde inte hämta: ${esc(e.message)}</div>`; }
+}
+async function importSpotifyList(id){
+  toast("Hämtar låtar…");
+  try {
+    const meta = await sp(`/playlists/${id}?fields=name,description,external_urls`);
+    let url = `/playlists/${id}/items?limit=100`, tracks = [];
+    while (url){ const j = await sp(url); (j.items || []).forEach(it => { const t = fromSp(it.item || it.track); if (t) tracks.push(t); }); url = j.next; if (tracks.length > 1000) break; }
+    const ex = state.playlists.find(p => p.spotifyId === id);
+    if (ex){ ex.tracks = tracks.map(slim); ex.updated = new Date().toISOString(); save(); closeSheet(); go("lista:" + ex.id); toast("Spellistan uppdaterades från Spotify"); return; }
+    const pl = newPlaylist(meta.name, tracks, {desc:meta.description || "", spotifyId:id, spotifyUrl:meta.external_urls && meta.external_urls.spotify});
+    closeSheet(); go("lista:" + pl.id); toast(`Hämtade ${pl.tracks.length} låtar`);
+  } catch(e){ toast(e.status === 403 ? "Spotify tillåter bara att appen läser spellistor du äger." : "Kunde inte hämta: " + e.message, null, null, 7000); }
+}
+async function importTopArtists(){
+  try {
+    const j = await sp("/me/top/artists?limit=15&time_range=medium_term"), names = ((j && j.items) || []).map(a => a.name).filter(n => !isFavArtist(n));
+    if (!names.length){ toast("Inga nya toppartister att lägga till."); return; }
+    state.favorites.push(...names.map(name => ({type:"artist", name}))); save(); render(); buildRecs(true);
+    toast(`${names.length} toppartister lades till`, "Ångra", () => { state.favorites = state.favorites.filter(f => !(f.type === "artist" && names.includes(f.name))); save(); render(); buildRecs(true); });
+  } catch(e){ toast("Kunde inte hämta toppartister: " + e.message); }
+}
+function shareText(pl){ return pl.name + "\n\n" + pl.tracks.map((t, i) => `${i + 1}. ${t.artist} – ${t.name}  ${spUrl(t)}`).join("\n"); }
+async function sharePlaylist(pl){
+  const txt = shareText(pl);
+  if (navigator.share){ try { await navigator.share({title:pl.name, text:txt}); return; } catch(e){ if (e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(txt); toast("Låtlistan kopierad – klistra in i mejl eller sms"); } catch(e){ toast("Kunde inte kopiera."); }
+}
+
+/* =========================================================
+   Byggstenar för vyer
+   ========================================================= */
+function cover(t){
+  const k = tk(t);
+  return t.img ? `<div class="cov"><img src="${esc(t.img)}" alt="" loading="lazy"></div>`
+    : `<div class="cov ph" data-needimg="${esc(k)}" style="--h:${hue(t.mainArtist || t.artist)}">${esc((t.mainArtist || t.artist || "?").replace(/^the /i, "")[0] || "?")}</div>`;
+}
+function trackRow(t, extra = "", o = {}){
+  t = reg(t); const k = tk(t), now = NOW && NOW.t && tk(NOW.t) === k;
+  const acts = o.pl
+    ? `<button class="ib" data-mv="-1" data-pl="${o.pl}" data-i="${o.i}" aria-label="Flytta upp">↑</button><button class="ib" data-mv="1" data-pl="${o.pl}" data-i="${o.i}" aria-label="Flytta ned">↓</button><button class="hide" data-rm="${o.i}" data-pl="${o.pl}" aria-label="Ta bort ur spellistan">✕</button>`
+    : `<button class="ib" data-add="${esc(k)}" aria-label="Lägg i spellista" title="Lägg i spellista">${IC.plus}</button>${o.noHide ? "" : `<button class="hide" data-hide="${esc(k)}" aria-label="Inte för mig" title="Inte för mig">✕</button>`}`;
+  return `<div class="trk ${now ? "now" : ""} ${o.pl ? "inpl" : ""}" data-open="${esc(k)}" style="--g:${gcol(t)}">${o.rank ? `<span class="rank">${o.rank}</span>` : ""}${cover(t)}
+    <div class="grow"><div class="t">${esc(t.name)}</div><div class="m"><a data-artist="${esc(t.mainArtist || t.artist)}">${esc(t.artist)}</a>${t.album ? " · " + esc(t.album) : ""}${t.dur ? " · " + fmtDur(t.dur) : ""}</div>${extra}</div>
+    <div class="racts"><button class="ib play" data-play="${esc(k)}" ${o.ctx ? `data-ctx="${o.ctx}"` : ""} aria-label="Spela" title="Spela">${IC.play}</button><button class="heart ${state.liked[k] ? "on" : ""}" data-heart="${esc(k)}" aria-label="Gilla" title="Gilla">♥</button>${acts}</div></div>`;
+}
+function trackList(list, o = {}){ const ctx = setReg(list); return list.map((t, i) => trackRow(t, o.reason ? (o.reason(t, i) || "") : "", {...o, ctx, i, rank:o.ranked ? i + 1 : 0})).join(""); }
+function miniCard(t, sub, ctx){
+  t = reg(t); const k = tk(t);
+  return `<div class="mini" data-open="${esc(k)}" style="--g:${gcol(t)}">${cover(t)}<div class="t">${esc(t.name)}</div><div class="m">${esc(t.artist)}</div>${sub ? `<div class="m">${esc(sub)}</div>` : ""}
+    <div class="mact"><button class="ib play" data-play="${esc(k)}" ${ctx ? `data-ctx="${ctx}"` : ""} aria-label="Spela">${IC.play}</button><button class="heart ${state.liked[k] ? "on" : ""}" data-heart="${esc(k)}" aria-label="Gilla">♥</button><button class="ib" data-add="${esc(k)}" aria-label="Lägg i spellista">${IC.plus}</button></div></div>`;
+}
+function row(title, list, links = ""){
+  if (!list.length) return "";
+  const ctx = setReg(list);
+  return `<div class="rowhead"><b>${title}</b><span class="lnks"><button class="lnk" data-playset="${ctx}">Spela</button><button class="lnk" data-saveset="${ctx}" data-name="${esc(title.replace(/<[^>]+>/g, ""))}">Spara som lista</button>${links}</span></div><div class="hscroll">${list.map(t => miniCard(t, "", ctx)).join("")}</div>`;
+}
+function sec(id, title, body, small = ""){
+  const open = !state.folds[id];
+  return `<h2 class="fold-head" data-fold="${id}" aria-expanded="${open}">${title}${small ? `<small>${small}</small>` : ""}</h2><div class="fold-body" ${open ? "" : "hidden"}>${body}</div>`;
+}
+const isDemo = () => !spOn() && !S().lfmKey.trim() && !aiOn();
+function statusLine(){
+  const p = [];
+  if (spOn()) p.push("Spotify" + (SP.me && SP.me.display_name ? ": " + SP.me.display_name : "")); else p.push("Spotify ej anslutet");
+  if (S().lfmKey.trim()) p.push("Last.fm"); if (aiOn()) p.push("AI");
+  return isDemo() ? "Demoläge – anslut Spotify under Inställningar" : p.join(" · ");
+}
+
+/* =========================================================
+   Vyer
+   ========================================================= */
+let TIP_SKIP = 0, AIRES = null;
+function quickStart(){
+  return `<div class="banner"><b>Kom igång</b>Lägg till några artister, grupper eller låtar du gillar – sedan får du tips på liknande musik.</div>
+    <label class="f">Artist eller grupp du gillar</label>
+    <div class="inl"><input type="text" id="qsArtist" placeholder="T.ex. First Aid Kit" enterkeyhint="done"><button class="go" id="qsAdd" aria-label="Lägg till">＋</button></div>
+    <label class="f">Genrer du gillar</label><div class="tags">${Object.entries(GENRES).map(([k, g]) => `<button class="tag ${state.favGenres.includes(k) ? "on" : ""}" data-genre="${k}" style="--g:${g.c}"><i></i>${esc(g.n)}</button>`).join("")}</div>
+    ${spOn() ? `<div class="acts"><button class="btn" data-act="topartists">Hämta mina toppartister från Spotify</button></div>` : ""}`;
+}
+function viewTips(){
+  buildRecs();
+  let h = "";
+  if (isDemo()) h += `<div class="banner"><b>Demoläge</b>Tipsen kommer från en liten inbyggd katalog och låtar öppnas i Spotify. Anslut Spotify och lägg in en Last.fm-nyckel under <a href="#" data-r="installningar">Inställningar</a> för riktiga tips och uppspelning direkt i appen.</div>`;
+  const hasTaste = state.favorites.length || state.favGenres.length || Object.keys(state.liked).length;
+  if (!hasTaste) return h + quickStart();
+  const busy = RECS.busy ? `<div class="empty"><span class="spin"></span>Hämtar tips…</div>` : "";
+
+  // 1. Dina favoriter
+  let fh = RECS.groups.map(g => {
+    const list = g.tracks.filter(t => !isHidden(tk(t))).slice(0, 12);
+    return list.length ? row(esc(g.title), list, g.fav.type === "artist" ? `<button class="lnk" data-radio="${esc(g.fav.name)}">Radio</button>` : "") : `<div class="rowhead"><b>${esc(g.title)}</b><span class="lnks" style="color:var(--faint)">Inga träffar</span></div>`;
+  }).join("");
+  h += sec("fav", "Dina favoriter", (fh || (RECS.busy ? busy : `<div class="empty">Lägg till artister, grupper eller låtar under <a href="#" data-r="mitt">Mitt</a>.</div>`)), state.favorites.length ? state.favorites.length + " st" : "");
+
+  // 2. Tips för dig
+  const all = RECS.list.filter(x => !isHidden(tk(x.t)) && !state.liked[tk(x.t)]);
+  if (TIP_SKIP >= all.length) TIP_SKIP = 0;
+  const recs = all.slice(TIP_SKIP, TIP_SKIP + 10);
+  if (recs.length && !TIP_SKIP) markShown(recs.map(r => r.t));
+  const tl = recs.map(r => r.t), ctx = setReg(all.map(r => r.t));
+  h += sec("tips", "Tips för dig", recs.length
+      ? `<div class="links"><button class="lnk" data-playset="${ctx}">Spela alla tips</button><button class="lnk" data-saveset="${ctx}" data-name="Tips ${new Date().toLocaleDateString("sv-SE")}">Spara som spellista</button></div>`
+        + trackList(tl, {reason:(t, i) => recs[i].reason ? `<div class="reason">${esc(recs[i].reason)}</div>` : ""})
+        + (all.length > 10 ? `<div class="links"><button class="lnk" data-tipmore="1">Visa andra tips (${TIP_SKIP/10 + 1} av ${Math.ceil(all.length/10)}) →</button></div>` : "")
+      : (busy || `<div class="empty">Gilla några låtar med ♥ eller lägg till fler favoriter så får du fler tips.</div>`));
+
+  // 3. Genrer
+  if (state.favGenres.length){
+    const gh = state.favGenres.map(g => row(`<span style="color:${GENRES[g].c}">●</span> ${esc(GENRES[g].n)}`, (RECS.genre[g] || []).filter(t => !isHidden(tk(t))).slice(0, 12))).join("");
+    h += sec("genre", "Utifrån dina genrer", gh || busy || `<div class="empty">Inga genretips just nu.</div>`);
+  }
+
+  // 4. Be om tips (AI)
+  h += sec("ai", "Be om tips (AI)", aiOn() ? `<div class="inl"><input type="text" id="aiq" placeholder="T.ex. lugn musik till en regnig söndag" enterkeyhint="send"><button class="go" id="aiask" aria-label="Fråga">→</button></div>
+      <div class="links"><button class="lnk" data-q="Ge mig tio låtar jag borde gilla men inte känner till.">Okänt för mig</button><button class="lnk" data-q="Gör en spellista med 15 låtar för en lugn kväll.">Lugn kväll</button><button class="lnk" data-q="Ge mig tio låtar i en genre jag inte brukar lyssna på, men som passar min smak.">Något nytt</button><button class="lnk" data-q="Ge mig tio svenska låtar som passar min smak.">Svenskt</button></div>
+      <div id="aiout">${AIRES ? aiResHtml(AIRES) : ""}</div>`
+    : `<div class="empty">Lägg in en AI-nyckel under <a href="#" data-r="installningar">Inställningar</a> så kan du be om tips med egna ord och skapa spellistor från en beskrivning.</div>`);
+
+  // 5. Senast spelat
+  if (state.recent.length) h += sec("recent", "Senast spelat", `<div class="hscroll">${(() => { const c = setReg(state.recent); return state.recent.slice(0, 15).map(t => miniCard(t, "", c)).join(""); })()}</div>`);
+  return h;
+}
+function aiResHtml(r){
+  const ctx = setReg(r.songs);
+  return `<div class="ai-out">${esc(r.text)}</div>` + (r.songs.length ? `<div class="links"><button class="lnk" data-playset="${ctx}">Spela alla</button><button class="lnk" data-saveset="${ctx}" data-name="${esc(r.name || "AI-tips")}">Spara som spellista</button></div>` + trackList(r.songs) : "");
+}
+async function runAI(q){
+  if (!q) return;
+  const out = $("#aiout"); if (out) out.innerHTML = `<div class="empty"><span class="spin"></span>Tänker…</div>`;
+  try { AIRES = parseAI(await askAI(`${aiContext()}\n\nFråga: ${q}`)); }
+  catch(e){ AIRES = {text:"AI-fel: " + e.message, songs:[]}; }
+  const o2 = $("#aiout"); if (o2){ o2.innerHTML = aiResHtml(AIRES); fillImages(); }
+}
+
+function viewListor(){
+  let h = `<div class="acts" style="margin-top:16px"><button class="btn pri" data-act="newpl">${IC.plus} Ny spellista</button>${spOn() ? `<button class="btn" data-act="importsp">Hämta från Spotify</button>` : ""}</div>`;
+  h += sec("aipl", "Skapa spellista med hjälp", `
+    <label class="f">Utifrån en artist, grupp eller låt (artistradio)</label>
+    <div class="inl"><input type="text" id="radioq" placeholder="T.ex. Fleetwood Mac" enterkeyhint="go"><button class="go" id="radiogo" aria-label="Skapa">→</button></div>
+    ${aiOn() ? `<label class="f">Beskriv spellistan med egna ord (AI)</label>
+    <div class="inl"><input type="text" id="aiplq" placeholder="T.ex. svensk visa till en lugn söndagsmorgon" enterkeyhint="go"><button class="go" id="aiplgo" aria-label="Skapa">→</button></div>` : `<p class="hint">Med en AI-nyckel (Inställningar) kan du också beskriva spellistan med egna ord.</p>`}
+    <div id="aiplout"></div>`);
+  h += sec("mylists", "Mina spellistor", state.playlists.length ? state.playlists.map(p => {
+      const dur = p.tracks.reduce((s, t) => s + (t.dur || 0), 0), first = p.tracks.find(t => t.img) || p.tracks[0];
+      return `<div class="trk" data-r="lista:${p.id}" style="--g:var(--acc)">${first ? cover(first) : `<div class="cov">♪</div>`}<div class="grow"><div class="t">${esc(p.name)}</div><div class="m">${p.tracks.length} låtar${dur ? " · " + fmtLen(dur) : ""}${p.spotifyId ? " · i Spotify" : ""}</div></div>
+        <div class="racts"><button class="ib play" data-plplay="${p.id}" aria-label="Spela">${IC.play}</button></div></div>`; }).join("")
+    : `<div class="empty">Inga spellistor än. Skapa en ovan, eller tryck ＋ på en låt.</div>`, state.playlists.length ? state.playlists.length + " st" : "");
+  return h;
+}
+function viewLista(r){
+  const pl = plById(r.split(":")[1]); if (!pl) return `<div class="empty">Spellistan finns inte längre. <a href="#" data-r="listor">Till spellistorna</a></div>`;
+  const dur = pl.tracks.reduce((s, t) => s + (t.dur || 0), 0);
+  let h = `<div class="links" style="margin-top:14px"><button class="lnk" data-r="listor">← Spellistor</button></div>
+    <div class="plhead"><h2>${esc(pl.name)}</h2><button class="btn sm" data-plren="${pl.id}">Byt namn</button></div>
+    <div class="hint" style="margin-top:0">${pl.tracks.length} låtar${dur ? " · " + fmtLen(dur) : ""}${pl.desc ? " · " + esc(pl.desc) : ""}${pl.syncedAt ? " · sparad i Spotify " + new Date(pl.syncedAt).toLocaleDateString("sv-SE") : ""}</div>
+    <div class="acts">
+      <button class="btn pri" data-plplay="${pl.id}">${IC.play} Spela</button>
+      <button class="btn" data-plshuf="${pl.id}">${IC.shuf} Blanda</button>
+      <button class="btn" data-plsp="${pl.id}">${pl.spotifyId ? "Uppdatera i Spotify" : "Spara till Spotify"}</button>
+      ${pl.spotifyId ? `<button class="btn" data-plopen="${pl.id}">Öppna i Spotify</button>` : ""}
+      <button class="btn" data-plfill="${pl.id}">Fyll på med liknande</button>
+      <button class="btn" data-plshare="${pl.id}">Dela</button>
+      <button class="btn" data-pldel="${pl.id}">Radera</button>
+    </div>
+    <label class="f">Lägg till låtar</label>
+    <div class="inl"><input type="search" id="pladdq" data-pl="${pl.id}" placeholder="Sök låt eller artist" autocomplete="off"></div>
+    <div id="pladdres"></div>`;
+  h += `<div class="inpl-list" style="margin-top:14px">` + (pl.tracks.length ? trackList(pl.tracks.map(t => reg({...t})), {pl:pl.id, ranked:true}) : `<div class="empty">Tom spellista. Sök ovan eller tryck ＋ på låtar i Tips.</div>`) + `</div>`;
+  return h;
+}
+
+let SEARCH = {q:"", mode:"track", res:null, busy:false};
+function viewSok(){
+  return `<div class="inl" style="margin-top:16px"><input type="search" id="sq" value="${esc(SEARCH.q)}" placeholder="Sök låt, artist eller grupp" autocomplete="off" enterkeyhint="search"></div>
+    <div class="seg"><button data-smode="track" class="${SEARCH.mode === "track" ? "on" : ""}">Låtar</button><button data-smode="artist" class="${SEARCH.mode === "artist" ? "on" : ""}">Artister & grupper</button></div>
+    <div id="sres">${searchHtml()}</div>`;
+}
+async function searchAll(q){
+  q = q.trim(); if (!q) return {tracks:[], artists:[]};
+  return cached("sr:" + (spOn() ? "s" : S().lfmKey ? "l" : "d") + ":" + norm(q), DAY, async () => {
+    if (spOn()){
+      const [a, b] = await Promise.all([sp(`/search?type=track&limit=10&q=${encodeURIComponent(q)}`), sp(`/search?type=track&limit=10&offset=10&q=${encodeURIComponent(q)}`).catch(() => null)]);
+      const ar = await sp(`/search?type=artist&limit=10&q=${encodeURIComponent(q)}`);
+      return {tracks:[...((a && a.tracks.items) || []), ...((b && b.tracks.items) || [])].map(fromSp).filter(Boolean).map(slim), artists:((ar && ar.artists.items) || []).map(x => ({name:x.name, img:pickImg(x.images), genres:(x.genres || []).slice(0, 3)}))};
+    }
+    if (S().lfmKey){
+      const [a, b] = await Promise.all([lfm("track.search", {track:q, limit:20}), lfm("artist.search", {artist:q, limit:10})]);
+      return {tracks:arr(a && a.results && a.results.trackmatches.track).map(x => ({name:x.name, artist:x.artist, mainArtist:x.artist})), artists:arr(b && b.results && b.results.artistmatches.artist).map(x => ({name:x.name}))};
+    }
+    const n = norm(q);
+    return {tracks:DEMO_TRACKS.filter(t => norm(t.name).includes(n) || norm(t.artist).includes(n)), artists:DEMO.filter(a => norm(a.name).includes(n)).map(a => ({name:a.name, genres:a.genres.map(g => GENRES[g].n)}))};
+  });
+}
+function searchHtml(){
+  if (!SEARCH.q.trim()) return `<div class="empty">Sök efter låtar och artister. Tryck på en artist för att se liknande musik, eller ＋ för att lägga en låt i en spellista.${isDemo() ? "<br><br>Demoläge: bara den inbyggda katalogen söks." : ""}</div>`;
+  if (SEARCH.busy && !SEARCH.res) return `<div class="empty"><span class="spin"></span>Söker…</div>`;
+  const r = SEARCH.res || {tracks:[], artists:[]};
+  if (SEARCH.mode === "artist") return r.artists.length ? r.artists.map(a => `<div class="trk" data-artist="${esc(a.name)}" style="--g:var(--line)">${a.img ? `<div class="cov" style="border-radius:50%"><img src="${esc(a.img)}" alt=""></div>` : `<div class="cov" style="--h:${hue(a.name)};border-radius:50%">${esc(a.name[0])}</div>`}
+      <div class="grow"><div class="t">${esc(a.name)}</div><div class="m">${esc((a.genres || []).join(", ")) || "Visa låtar och liknande"}</div></div>
+      <div class="racts"><button class="heart ${isFavArtist(a.name) ? "on" : ""}" data-favartist="${esc(a.name)}" aria-label="Favorit">♥</button></div></div>`).join("") : `<div class="empty">Inga artister hittades.</div>`;
+  return r.tracks.length ? trackList(r.tracks.map(t => reg({...t})), {noHide:true}) : `<div class="empty">Inga låtar hittades.</div>`;
+}
+let sTimer;
+function doSearch(q, targetSel = "#sres", plId){
+  if (!plId){ SEARCH.q = q; SEARCH.busy = true; }
+  clearTimeout(sTimer);
+  sTimer = setTimeout(async () => {
+    let res = null; try { res = await searchAll(q); } catch(e){ toast("Sökningen misslyckades: " + e.message); }
+    if (plId){ const el = $("#pladdres"); if (!el) return; const list = ((res && res.tracks) || []).slice(0, 8).map(t => reg({...t}));
+      el.innerHTML = q.trim() ? (list.length ? list.map(t => `<div class="trk" style="--g:var(--line)">${cover(t)}<div class="grow"><div class="t">${esc(t.name)}</div><div class="m">${esc(t.artist)}</div></div><div class="racts"><button class="btn sm" data-addto="${plId}" data-one="${esc(tk(t))}">Lägg till</button></div></div>`).join("") : `<div class="empty">Inga träffar.</div>`) : "";
+      fillImages(); return; }
+    if (SEARCH.q !== q) return;
+    SEARCH.res = res; SEARCH.busy = false; const el = $(targetSel); if (el){ el.innerHTML = searchHtml(); fillImages(); }
+  }, 300);
+}
+
+function viewMitt(){
+  const favs = state.favorites;
+  let h = sec("favs", "Favoriter", `
+    <div class="seg sm" style="margin-top:6px"><button data-favtype="artist" class="${(state.favType || "artist") === "artist" ? "on" : ""}">Artist eller grupp</button><button data-favtype="låt" class="${state.favType === "låt" ? "on" : ""}">Låt</button></div>
+    ${state.favType === "låt"
+      ? `<div class="row" style="margin-top:10px"><input type="text" id="favSong" placeholder="Låt"><input type="text" id="favSongArtist" placeholder="Artist" enterkeyhint="done"></div><div class="acts"><button class="btn sm" id="favAdd">Lägg till</button></div>`
+      : `<div class="inl" style="margin-top:10px"><input type="text" id="favName" placeholder="T.ex. Joni Mitchell" enterkeyhint="done"><button class="go" id="favAdd" aria-label="Lägg till">＋</button></div>`}
+    <div class="tags">${favs.map((f, i) => `<span class="tag" ${f.type === "artist" ? `data-artist="${esc(f.name)}"` : ""} style="cursor:pointer">${f.type === "låt" ? "♪ " + esc(f.name) + " – " + esc(f.artist) : esc(f.name)}<button class="x" data-favrm="${i}" aria-label="Ta bort" style="border:0;background:none;padding:0 0 0 4px">✕</button></span>`).join("") || `<span class="hint">Inga favoriter än.</span>`}</div>
+    ${spOn() ? `<div class="links"><button class="lnk" data-act="topartists">Hämta mina toppartister från Spotify →</button></div>` : ""}`, favs.length ? favs.length + " st" : "");
+  h += sec("genres", "Favoritgenrer", `<div class="tags">${Object.entries(GENRES).map(([k, g]) => `<button class="tag ${state.favGenres.includes(k) ? "on" : ""}" data-genre="${k}" style="--g:${g.c}"><i></i>${esc(g.n)}</button>`).join("")}</div>`, state.favGenres.length ? state.favGenres.length + " valda" : "");
+  const liked = Object.values(state.liked).reverse();
+  h += sec("liked", "Gillade låtar", liked.length ? (() => { const c = setReg(liked); return `<div class="links"><button class="lnk" data-playset="${c}">Spela alla</button><button class="lnk" data-saveset="${c}" data-name="Gillade låtar">Spara som spellista</button></div>`; })() + trackList(liked.map(t => reg({...t})), {noHide:true}) : `<div class="empty">Tryck ♥ på låtar du gillar – de styr dina tips.</div>`, liked.length ? liked.length + " st" : "");
+  const dis = Object.entries(state.disliked);
+  h += sec("hidden", "Dolda låtar", dis.length ? `<div class="links"><button class="lnk" data-act="unhideall">Visa alla igen</button></div>` + dis.reverse().slice(0, 50).map(([k, t]) => `<div class="trk" style="--g:var(--line)"><div class="grow"><div class="t">${esc(t.name)}</div><div class="m">${esc(t.artist)}</div></div><button class="btn sm" data-unhide="${esc(k)}">Visa igen</button></div>`).join("") : `<div class="empty">Låtar du döljer med ✕ hamnar här.</div>`, dis.length ? dis.length + " st" : "");
+  return h;
+}
+
+function viewSettings(){
+  const s = S(), fileProto = location.protocol === "file:";
+  let h = sec("spset", "Spotify", `
+    ${spOn() ? `<p>Ansluten${SP.me && SP.me.display_name ? " som <b>" + esc(SP.me.display_name) + "</b>" : ""}.</p><div class="acts"><button class="btn" data-devices="1">Välj högtalare</button><button class="btn" data-act="splogout">Koppla från</button></div>`
+      : `<p class="hint" style="margin-top:8px">Med Spotify kan appen söka i hela katalogen, spela musik direkt (i webbläsaren, på högtalare via wifi eller i Bluetooth-hörlurar) och spara dina spellistor i Spotify.</p>`}
+    <label class="f" for="spClientId">Client ID</label><input type="text" id="spClientId" value="${esc(s.spClientId)}" placeholder="32 tecken från Spotify Dashboard" autocomplete="off" spellcheck="false">
+    ${spOn() ? "" : `<div class="acts"><button class="btn pri" data-act="splogin" ${s.spClientId ? "" : "disabled"}>Anslut Spotify</button></div>`}
+    ${fileProto ? `<div class="warnbox">Appen är öppnad som fil (file://). Spotify kräver en webbadress. Lägg filen på t.ex. GitHub Pages (https) eller kör den lokalt via <span class="code">http://127.0.0.1:8080</span>.</div>` : ""}
+    <h4>Så skaffar du ett Client ID</h4>
+    <ol class="steps">
+      <li>Gå till <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a> och logga in. Kontot måste ha <b>Spotify Premium</b>.</li>
+      <li>Välj <b>Create app</b>. Namn: Min musik. Under <b>Redirect URIs</b> lägger du in exakt:<br><span class="code" id="redir">${esc(SP_REDIRECT)}</span> <button class="lnk" data-act="copyredir">Kopiera</button></li>
+      <li>Kryssa i <b>Web API</b> och <b>Web Playback SDK</b> och spara.</li>
+      <li>Kopiera <b>Client ID</b> från appens sida och klistra in ovan. Tryck Anslut.</li>
+      <li>Ska fler använda appen med sina konton? Lägg till deras Spotify-mejl under <b>User Management</b> (högst fem personer).</li>
+    </ol>
+    <label class="toggle" style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="syncLibrary" ${s.syncLibrary ? "checked" : ""}> Spara även ♥-låtar i ”Gillade låtar” i Spotify</label>`);
+  h += sec("playset", "Uppspelning", `
+    <p class="hint" style="margin-top:8px">Välj din standardenhet, t.ex. WiiM-streamern på wifi. När du trycker spela i appen går musiken dit automatiskt.</p>
+    <p>Standardenhet: <b>${esc(s.deviceName || "ingen vald")}</b>${s.deviceName ? ` <button class="lnk" data-cleardev="1" style="margin-left:10px">Ta bort</button>` : ""}</p>
+    ${spOn() ? `<div id="devset"><button class="btn" data-loaddevs="1">Visa enheter och välj standard</button></div>` : `<p class="hint">Anslut Spotify ovan först.</p>`}
+    <h4>WiiM Pro Plus och andra wifi-streamers</h4>
+    <ol class="steps">
+      <li>Öppna <b>WiiM Home</b>-appen och kontrollera att streamern har Spotify Connect påslaget.</li>
+      <li>Öppna Spotify-appen på telefonen, tryck på enhetsikonen och välj WiiM-enheten en gång. Då kopplas den till ditt konto.</li>
+      <li>Tryck <b>Visa enheter</b> här ovan och välj WiiM-enheten som standard.</li>
+    </ol>
+    <p class="hint">Spotify visar bara enheter som är vakna. Om WiiM har somnat syns den inte förrän du väckt den (steg 2), då påminner appen dig.</p>`);
+  h += sec("lfmset", "Liknande musik (Last.fm)", `
+    <p class="hint" style="margin-top:8px">Spotify har stängt av sina egna rekommendationer för små appar. Last.fm ger liknande artister, liknande låtar och genrelistor – gratis.</p>
+    <label class="f" for="lfmKey">Last.fm API-nyckel</label><input type="text" id="lfmKey" value="${esc(s.lfmKey)}" placeholder="32 tecken" autocomplete="off" spellcheck="false">
+    <p class="hint">Skaffa en på <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener">last.fm/api/account/create</a> (logga in, fyll i appnamn – resten kan lämnas tomt).</p>`);
+  h += sec("aiset", "AI", `
+    <p class="hint" style="margin-top:8px">Valfritt. Ger ”Be om tips” med egna ord och spellistor från en beskrivning. Samma nyckel som i Min tablå fungerar.</p>
+    <label class="f" for="aiProvider">Tjänst</label><select id="aiProvider"><option value="anthropic" ${s.aiProvider === "anthropic" ? "selected" : ""}>Anthropic (Claude)</option><option value="openai" ${s.aiProvider === "openai" ? "selected" : ""}>OpenAI-kompatibel</option></select>
+    <label class="f" for="aiKey">API-nyckel</label><input type="password" id="aiKey" value="${esc(s.aiKey)}" autocomplete="off">
+    <label class="f" for="aiModel">Modell</label><input type="text" id="aiModel" value="${esc(s.aiModel)}">
+    ${s.aiProvider === "openai" ? `<label class="f" for="aiBase">Adress</label><input type="text" id="aiBase" value="${esc(s.aiBase)}">` : ""}`);
+  h += sec("dataset", "Data och visning", `
+    <p class="hint" style="margin-top:8px">Allt sparas bara i den här webbläsaren. Ta en säkerhetskopia för att flytta mellan dator och mobil.</p>
+    <div class="acts"><button class="btn" data-act="export">Spara säkerhetskopia</button><button class="btn" data-act="import">Läs in säkerhetskopia</button><input type="file" id="impfile" accept="application/json,.json" hidden></div>
+    <label class="f">Textstorlek</label><div class="acts" style="margin-top:0"><button class="btn sm" data-zoom="-1">A−</button><button class="btn sm" data-zoom="0">Normal</button><button class="btn sm" data-zoom="1">A+</button></div>
+    <div class="acts"><button class="btn" data-act="clearcache">Töm tipscache</button><button class="btn" data-act="reset">Återställ allt</button></div>
+    <p class="demo">Min musik ${VERSION} · Kortkommandon: mellanslag spela/pausa, / sök</p>`);
+  return h;
+}
+
+/* ---------- Egna dialoger (ersätter prompt/confirm) ---------- */
+function askText(title, def = "", ok = "Spara"){
+  return new Promise(res => {
+    openSheet(`<h3>${esc(title)}</h3><input type="text" id="askv" value="${esc(def)}" enterkeyhint="done"><div class="acts"><button class="btn pri" id="askok">${esc(ok)}</button><button class="btn" id="askno">Avbryt</button></div>`);
+    const i = $("#askv"); setTimeout(() => { i.focus(); i.select(); }, 50);
+    const done = v => { $("#sheet").removeEventListener("sheetclose", cancel); closeSheet(); res(v); };
+    const cancel = () => res(null);
+    $("#sheet").addEventListener("sheetclose", cancel, {once:true});
+    $("#askok").onclick = () => done(i.value.trim() || null);
+    $("#askno").onclick = () => done(null);
+    i.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); e.stopPropagation(); done(i.value.trim() || null); } };
+  });
+}
+function askYes(title, text, ok = "Ja"){
+  return new Promise(res => {
+    openSheet(`<h3>${esc(title)}</h3><p>${esc(text)}</p><div class="acts"><button class="btn pri" id="askok">${esc(ok)}</button><button class="btn" id="askno">Avbryt</button></div>`);
+    $("#sheet").addEventListener("sheetclose", () => res(false), {once:true});
+    $("#askok").onclick = () => { res(true); closeSheet(); };
+    $("#askno").onclick = () => { res(false); closeSheet(); };
+  });
+}
+
+/* ---------- Detaljvyer ---------- */
+function openSheet(html){ $("#sheetc").innerHTML = html; $("#sheet").classList.add("open"); $("#sheetbg").style.display = "block"; $("#sheet").scrollTop = 0; fillImages(); }
+function closeSheet(){ const sh = $("#sheet"); if (sh.classList.contains("open")) sh.dispatchEvent(new Event("sheetclose")); sh.classList.remove("open"); $("#sheetbg").style.display = "none"; PENDING = null; }
+async function openTrack(k){
+  const t = TR.get(k); if (!t) return;
+  const art = t.mainArtist || t.artist;
+  openSheet(`<div class="hero">${cover(t)}<div><h3>${esc(t.name)}</h3><div class="m"><a data-artist="${esc(art)}">${esc(t.artist)}</a>${t.album ? "<br>" + esc(t.album) : ""}${t.dur ? " · " + fmtDur(t.dur) : ""}</div></div></div>
+    <div class="acts"><button class="btn pri" data-play="${esc(k)}">${IC.play} Spela</button><button class="btn" data-add="${esc(k)}">${IC.plus} Spellista</button>
+      <button class="btn" data-heart="${esc(k)}"><span class="heart ${state.liked[k] ? "on" : ""}" style="padding:0">♥</span> Gilla</button>
+      <button class="btn" data-favsong="${esc(k)}">Favoritlåt</button><button class="btn" data-favartist="${esc(art)}">${isFavArtist(art) ? "Favoritartist ✓" : "Favoritartist"}</button>
+      <button class="btn" data-ext="${esc(k)}">Öppna i Spotify</button><button class="btn" data-radio="${esc(art)}">Gör radio</button></div>
+    <h4>Liknande låtar</h4><div id="simt"><div class="empty"><span class="spin"></span>Letar…</div></div>`);
+  if (spOn() && !t.uri) resolve(t).then(() => { const el = $("#sheetc .hero [data-needimg]"); if (el && t.img) setCov(el, t); });
+  const list = (await similarTracks(t)).filter(x => !isHidden(tk(x)) && tk(x) !== k).slice(0, 15);
+  const el = $("#simt"); if (!el) return;
+  el.innerHTML = list.length ? `<div class="links"><button class="lnk" data-playset="${setReg(list)}">Spela alla</button><button class="lnk" data-saveset="${setReg([t, ...list])}" data-name="Liknar ${esc(t.name)}">Spara som spellista</button></div>` + trackList(list) : `<div class="empty">Inga liknande låtar hittades.${S().lfmKey ? "" : " Lägg in en Last.fm-nyckel för bättre träffar."}</div>`;
+  fillImages();
+}
+async function openArtist(name){
+  openSheet(`<h3>${esc(name)}</h3>
+    <div class="acts"><button class="btn pri" data-artplay="${esc(name)}">${IC.play} Spela</button><button class="btn" data-favartist="${esc(name)}">${isFavArtist(name) ? "♥ Favorit ✓" : "♥ Lägg till som favorit"}</button><button class="btn" data-radio="${esc(name)}">Gör radio-spellista</button></div>
+    <h4>Populära låtar</h4><div id="atop"><div class="empty"><span class="spin"></span>Hämtar…</div></div>
+    <h4>Liknande artister och grupper</h4><div id="asim"><div class="empty"><span class="spin"></span>Hämtar…</div></div>`);
+  const [top, sims] = await Promise.all([artistTopTracks(name, 8), similarArtists(name)]);
+  if ($("#atop")) $("#atop").innerHTML = top.length ? trackList(top) : `<div class="empty">Hittade inga låtar.</div>`;
+  if ($("#asim")) $("#asim").innerHTML = sims.length ? `<div class="tags">${sims.slice(0, 15).map(a => `<button class="tag ${isFavArtist(a.name) ? "on" : ""}" data-artist="${esc(a.name)}">${esc(a.name)}</button>`).join("")}</div>` : `<div class="empty">Inga liknande artister hittades.</div>`;
+  fillImages();
+}
+
+/* =========================================================
+   Navigering och händelser
+   ========================================================= */
+const ROUTES = {tips:viewTips, listor:viewListor, lista:viewLista, sok:viewSok, mitt:viewMitt, installningar:viewSettings};
+function go(r){ state.route = r; save(); closeSheet(); render(); window.scrollTo(0, 0); }
+function render(){
+  const r = state.route || "tips", base = r.split(":")[0];
+  $$("nav.bottom [data-r]").forEach(b => b.classList.toggle("on", b.dataset.r === (base === "lista" ? "listor" : base)));
+  $("#app").innerHTML = (ROUTES[base] || viewTips)(r);
+  $("#sub").textContent = statusLine();
+  $("#spbtn").textContent = spBtnText();
+  document.documentElement.style.setProperty("--z", state.zoom || 1);
+  fillImages(); markNow();
+}
+function spBtnText(){ if (!spOn()) return "Anslut Spotify"; const n = (NOW && NOW.dev && NOW.dev.name && NOW.dev.id !== SP.webId ? NOW.dev.name : "") || S().deviceName; return n ? "♪ " + (n.length > 18 ? n.slice(0, 17) + "…" : n) : "Välj högtalare"; }
+function setNavH(){ document.documentElement.style.setProperty("--navh", $("nav.bottom").offsetHeight + "px"); }
+window.addEventListener("resize", setNavH);
+
+document.addEventListener("click", async e => {
+  const t = e.target, g = s => t.closest(s);
+  let el;
+  if (g("#sheetx") || t.id === "sheetbg") return closeSheet();
+  if (el = g("[data-pc]")) return pc(el.dataset.pc);
+  if (el = g("[data-devices]")) return openDevices();
+  if (el = g("[data-dev]")) return chooseDevice(el.dataset.dev, el.dataset.devname, el.dataset.devtype);
+  if (el = g("[data-setdev]")){ setPrefDevice(el.dataset.setdev, el.dataset.devname, el.dataset.devtype); toast(`${el.dataset.devname} är nu standardenhet`); return render(); }
+  if (el = g("[data-cleardev]")){ setPrefDevice("", "", ""); state.settings.deviceId = ""; save(); toast("Ingen standardenhet – appen använder den som spelar"); return render(); }
+  if (el = g("[data-loaddevs]")){ const box = $("#devset"); box.innerHTML = `<div class="empty"><span class="spin"></span>Letar…</div>`; const l = await getDevices(); box.innerHTML = l.length ? devRows(l, "set") : `<div class="empty">Inga enheter hittades. ${wakeHelp(S().deviceName || "högtalaren")}</div>`; return; }
+  if (el = g("[data-openspotify]")) return openUrl("https://open.spotify.com/");
+  if (el = g("[data-play]")){ e.preventDefault(); const k = el.dataset.play, ctx = el.dataset.ctx && SETS.get(el.dataset.ctx);
+    if (ctx){ const i = ctx.findIndex(x => tk(x) === k); return playTracks(ctx, Math.max(0, i)); } return playTracks([TR.get(k)]); }
+  if (el = g("[data-playset]")) return playTracks(SETS.get(el.dataset.playset) || []);
+  if (el = g("[data-saveset]")){ const list = SETS.get(el.dataset.saveset) || []; const name = await askText("Namn på spellistan", el.dataset.name || "Ny spellista", "Skapa"); if (!name) return; const pl = newPlaylist(name, list); toast(`Spellistan ”${pl.name}” skapades`, "Visa", () => go("lista:" + pl.id)); return; }
+  if (el = g("[data-heart]")){ e.preventDefault(); toggleLike(el.dataset.heart); if (el.classList.contains("btn")) el.querySelector(".heart").classList.toggle("on", !!state.liked[el.dataset.heart]); return; }
+  if (el = g("[data-add]")) return openAddTo([TR.get(el.dataset.add)]);
+  if (el = g("[data-hide]")) return hideTrack(el.dataset.hide, el);
+  if (el = g("[data-favartist]")){ e.stopPropagation(); toggleFavArtist(el.dataset.favartist); if (el.classList.contains("heart")) el.classList.toggle("on", isFavArtist(el.dataset.favartist)); else el.textContent = isFavArtist(el.dataset.favartist) ? (el.textContent.startsWith("♥") ? "♥ Favorit ✓" : "Favoritartist ✓") : (el.textContent.startsWith("♥") ? "♥ Lägg till som favorit" : "Favoritartist"); if (state.route === "mitt") render(); return; }
+  if (el = g("[data-favsong]")) return addFavSong(TR.get(el.dataset.favsong));
+  if (el = g("[data-ext]")) return openUrl(spUrl(TR.get(el.dataset.ext)));
+  if (el = g("[data-radio]")) return artistRadio(el.dataset.radio);
+  if (el = g("[data-artplay]")){ const l = await artistTopTracks(el.dataset.artplay, 10); return playTracks(l); }
+  if (el = g("[data-favrm]")){ e.stopPropagation(); const f = state.favorites.splice(+el.dataset.favrm, 1)[0]; save(); render(); buildRecs(true); toast("Borttagen", "Ångra", () => { state.favorites.splice(+el.dataset.favrm, 0, f); save(); render(); buildRecs(true); }); return; }
+  if (el = g("[data-artist]")){ e.preventDefault(); e.stopPropagation(); return openArtist(el.dataset.artist); }
+  if (el = g("[data-addto]")){ const list = el.dataset.one ? [TR.get(el.dataset.one)] : (SETS.get(el.dataset.set) || []); addToPlaylist(el.dataset.addto, list); if (!el.dataset.one) closeSheet(); else { el.textContent = "Tillagd"; el.disabled = true; } return; }
+  if (el = g("[data-newpl]")){ const n = $("#newplname").value.trim() || "Ny spellista"; const pl = newPlaylist(n, SETS.get(el.dataset.newpl) || []); closeSheet(); toast(`Spellistan ”${pl.name}” skapades`, "Visa", () => go("lista:" + pl.id)); if (state.route === "listor") render(); return; }
+  if (el = g("[data-mv]")){ const pl = plById(el.dataset.pl), i = +el.dataset.i, j = i + +el.dataset.mv; if (!pl || j < 0 || j >= pl.tracks.length) return; [pl.tracks[i], pl.tracks[j]] = [pl.tracks[j], pl.tracks[i]]; save(); const y = scrollY; render(); scrollTo(0, y); return; }
+  if (el = g("[data-rm]")){ const pl = plById(el.dataset.pl), i = +el.dataset.rm, x = pl.tracks.splice(i, 1)[0]; save(); const y = scrollY; render(); scrollTo(0, y); toast("Borttagen ur spellistan", "Ångra", () => { pl.tracks.splice(i, 0, x); save(); render(); }); return; }
+  if (el = g("[data-plplay]")){ e.stopPropagation(); const pl = plById(el.dataset.plplay); return pl && playTracks(pl.tracks.map(t => reg({...t}))); }
+  if (el = g("[data-plshuf]")){ const pl = plById(el.dataset.plshuf); return pl && playTracks([...pl.tracks].sort(() => Math.random() - .5).map(t => reg({...t}))); }
+  if (el = g("[data-plsp]")) return exportToSpotify(plById(el.dataset.plsp));
+  if (el = g("[data-plopen]")){ const pl = plById(el.dataset.plopen); return openUrl(pl.spotifyUrl || "https://open.spotify.com/playlist/" + pl.spotifyId); }
+  if (el = g("[data-plfill]")) return fillPlaylist(plById(el.dataset.plfill));
+  if (el = g("[data-plshare]")) return sharePlaylist(plById(el.dataset.plshare));
+  if (el = g("[data-plren]")){ const pl = plById(el.dataset.plren); const n = await askText("Byt namn på spellistan", pl.name); if (n){ pl.name = n.trim(); save(); render(); } return; }
+  if (el = g("[data-pldel]")){ const i = state.playlists.findIndex(p => p.id === el.dataset.pldel), pl = state.playlists.splice(i, 1)[0]; save(); go("listor"); toast(`”${pl.name}” raderad`, "Ångra", () => { state.playlists.splice(i, 0, pl); save(); render(); }); return; }
+  if (el = g("[data-imp]")) return importSpotifyList(el.dataset.imp);
+  if (el = g("[data-unhide]")){ delete state.disliked[el.dataset.unhide]; save(); render(); return; }
+  if (el = g("[data-genre]")){ const k = el.dataset.genre; state.favGenres = state.favGenres.includes(k) ? state.favGenres.filter(x => x !== k) : [...state.favGenres, k]; save(); render(); buildRecs(true); return; }
+  if (el = g("[data-favtype]")){ state.favType = el.dataset.favtype; save(); render(); return; }
+  if (el = g("[data-smode]")){ SEARCH.mode = el.dataset.smode; $$("[data-smode]").forEach(b => b.classList.toggle("on", b === el)); $("#sres").innerHTML = searchHtml(); fillImages(); return; }
+  if (el = g("[data-tipmore]")){ TIP_SKIP += 10; render(); return; }
+  if (el = g("[data-q]")){ const i = $("#aiq"); if (i) i.value = el.dataset.q; return runAI(el.dataset.q); }
+  if (el = g("[data-zoom]")){ const d = +el.dataset.zoom; state.zoom = d === 0 ? 1 : Math.max(.85, Math.min(1.4, (state.zoom || 1) + d*.1)); save(); render(); return; }
+  if (el = g("[data-fold]")){ const id = el.dataset.fold; state.folds[id] = !state.folds[id]; save(); el.setAttribute("aria-expanded", !state.folds[id]); el.nextElementSibling.hidden = !!state.folds[id]; return; }
+  if (el = g("[data-r]")){ e.preventDefault(); return go(el.dataset.r); }
+  if (el = g("[data-open]")){ return openTrack(el.dataset.open); }
+  if (el = g("[data-act]")) return act(el.dataset.act);
+  if (t.id === "qsAdd") return quickAdd();
+  if (t.id === "favAdd") return favAdd();
+  if (t.id === "aiask") return runAI($("#aiq").value.trim());
+  if (t.id === "radiogo") return radioFromInput();
+  if (t.id === "aiplgo") return aiPlaylist();
+  if (t.id === "refresh"){ clearRecCache(); TIP_SKIP = 0; toast("Hämtar nya tips…"); if (state.route !== "tips") go("tips"); buildRecs(true); return; }
+  if (t.id === "spbtn") return spOn() ? openDevices() : (S().spClientId ? spLogin() : go("installningar"));
+});
+function quickAdd(){ const v = $("#qsArtist").value.trim(); if (!v) return; if (!isFavArtist(v)){ state.favorites.push({type:"artist", name:v}); save(); } $("#qsArtist").value = ""; render(); buildRecs(true); toast(`${v} tillagd – lägg gärna till fler`); }
+function favAdd(){
+  if (state.favType === "låt"){ const n = $("#favSong").value.trim(), a = $("#favSongArtist").value.trim(); if (!n || !a){ toast("Fyll i både låt och artist."); return; } addFavSong({name:n, artist:a, mainArtist:a}); render(); return; }
+  const v = $("#favName").value.trim(); if (!v) return; if (isFavArtist(v)){ toast("Finns redan"); return; }
+  state.favorites.unshift({type:"artist", name:v}); save(); render(); buildRecs(true); toast(`${v} tillagd`); setTimeout(() => { const i = $("#favName"); i && i.focus(); }, 0);
+}
+function radioFromInput(){ const v = $("#radioq").value.trim(); if (v) artistRadio(v); }
+async function aiPlaylist(){
+  const q = $("#aiplq").value.trim(); if (!q) return;
+  $("#aiplout").innerHTML = `<div class="empty"><span class="spin"></span>Sätter ihop spellistan…</div>`;
+  try {
+    const r = parseAI(await askAI(`${aiContext()}\n\nSkapa en spellista med cirka 20 låtar: ${q}`));
+    if (!r.songs.length){ $("#aiplout").innerHTML = `<div class="ai-out">${esc(r.text || "Fick inga låtar tillbaka.")}</div>`; return; }
+    const pl = newPlaylist(r.name || q, r.songs, {desc:q}); go("lista:" + pl.id); toast(`”${pl.name}” skapades med ${pl.tracks.length} låtar`);
+  } catch(e){ $("#aiplout").innerHTML = `<div class="empty">AI-fel: ${esc(e.message)}</div>`; }
+}
+async function act(a){
+  if (a === "splogin") return spLogin();
+  if (a === "splogout") return spLogout();
+  if (a === "topartists") return importTopArtists();
+  if (a === "importsp") return importSpotifyLists();
+  if (a === "newpl"){ const n = await askText("Ny spellista", "Ny spellista", "Skapa"); if (!n) return; const pl = newPlaylist(n.trim()); go("lista:" + pl.id); return; }
+  if (a === "unhideall"){ const old = state.disliked; state.disliked = {}; save(); render(); toast("Alla dolda låtar visas igen", "Ångra", () => { state.disliked = old; save(); render(); }); return; }
+  if (a === "copyredir"){ try { await navigator.clipboard.writeText(SP_REDIRECT); toast("Kopierad"); } catch(e){ toast(SP_REDIRECT); } return; }
+  if (a === "clearcache"){ CACHE = {}; flushCache(); RECS.at = 0; toast("Tipscachen tömd"); return; }
+  if (a === "export"){
+    const c = JSON.parse(JSON.stringify(state)); c.settings = {...c.settings, aiKey:""};
+    const b = new Blob([JSON.stringify({app:"minmusik", version:VERSION, savedAt:new Date().toISOString(), state:c}, null, 2)], {type:"application/json"});
+    const u = URL.createObjectURL(b), l = document.createElement("a"); l.href = u; l.download = `min-musik-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000);
+    toast("Säkerhetskopia sparad (AI-nyckeln ingår inte)"); return;
+  }
+  if (a === "import") return $("#impfile").click();
+  if (a === "reset"){ if (!await askYes("Återställ allt?", "Alla favoriter, spellistor och inställningar i den här webbläsaren raderas.", "Radera allt")) return; localStorage.removeItem(KEY); localStorage.removeItem(RECKEY); localStorage.removeItem(CACHEKEY); localStorage.removeItem(TOKKEY); location.reload(); }
+}
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (["spClientId","lfmKey","aiKey","aiModel","aiBase","aiProvider"].includes(t.id)){
+    state.settings[t.id] = t.value.trim();
+    if (t.id === "aiProvider") state.settings.aiModel = t.value === "anthropic" ? "claude-sonnet-5-5" : "gpt-4o-mini";
+    if (t.id === "lfmKey" || t.id === "aiKey") clearRecCache();
+    save(); render(); toast("Sparat");
+  }
+  if (t.id === "vol"){ try { await sp(`/me/player/volume?volume_percent=${t.value}`, {method:"PUT"}); if (NOW && NOW.dev) NOW.dev.volume_percent = +t.value; } catch(err){ toast("Kunde inte ändra volymen: " + err.message); } }
+  if (t.id === "syncLibrary"){ state.settings.syncLibrary = t.checked; save(); }
+  if (t.id === "impfile" && t.files[0]){
+    try { const j = JSON.parse(await t.files[0].text()); const st = j.state || j; if (!st.playlists && !st.favorites) throw new Error("okänt format");
+      const keepKey = state.settings.aiKey; state = Object.assign(defaults(), st); state.settings = Object.assign(defaults().settings, st.settings || {}, {aiKey: (st.settings && st.settings.aiKey) || keepKey});
+      save(); RECS.at = 0; render(); toast(`Inläst: ${state.playlists.length} spellistor, ${state.favorites.length} favoriter`);
+    } catch(err){ toast("Kunde inte läsa filen: " + err.message); }
+    t.value = "";
+  }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "sq") doSearch(t.value);
+  if (t.id === "pladdq") doSearch(t.value, null, t.dataset.pl);
+  if (t.id === "spClientId"){ const b = $('[data-act="splogin"]'); if (b) b.disabled = !t.value.trim(); }
+});
+document.addEventListener("keydown", e => {
+  const inField = /INPUT|TEXTAREA|SELECT/.test(e.target.tagName);
+  if (e.key === "Enter" && inField){
+    const id = e.target.id;
+    if (id === "qsArtist") return quickAdd();
+    if (id === "favName" || id === "favSongArtist") return favAdd();
+    if (id === "aiq") return runAI(e.target.value.trim());
+    if (id === "radioq") return radioFromInput();
+    if (id === "aiplq") return aiPlaylist();
+    if (id === "newplname") return $("[data-newpl]").click();
+    if (id === "spClientId"){ e.target.blur(); }
+  }
+  if (e.key === "Escape" && $("#sheet").classList.contains("open")) return closeSheet();
+  if (inField) return;
+  if (e.key === " " && spOn() && NOW){ e.preventDefault(); pc("toggle"); }
+  if (e.key === "/"){ e.preventDefault(); go("sok"); setTimeout(() => $("#sq") && $("#sq").focus(), 0); }
+});
+
+/* ---------- Start ---------- */
+(async function init(){
+  setNavH();
+  render();
+  await spCallback();
+  if (spOn()) spConnected(); else render();
+})();
+</script>
+</body>
+</html>
