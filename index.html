@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.2";
+const VERSION = "0.3";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -296,13 +296,14 @@ function demoSimilar(name){
 const KEY = "minmusik.v1", TOKKEY = "minmusik.tok", CACHEKEY = "minmusik.cache", RECKEY = "minmusik.recs";
 function defaults(){
   return {route:"tips", favorites:[], favGenres:[], liked:{}, disliked:{}, playlists:[], recent:[], folds:{}, tipShown:{}, zoom:1,
-    settings:{spClientId:DEFAULT_SP_CLIENT, lfmKey:"", aiProvider:"anthropic", aiKey:"", aiModel:"claude-sonnet-5-5", aiBase:"https://api.openai.com/v1", deviceId:"", deviceName:"", deviceType:""}};
+    settings:{spClientId:DEFAULT_SP_CLIENT, lfmKey:"", aiProvider:"anthropic", aiKey:"", aiModel:"claude-sonnet-5-5", aiBase:"https://api.openai.com/v1", deviceId:"", deviceName:"", deviceType:"", devNames:{}}};
 }
 let state;
 try { state = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){ state = defaults(); }
 state.settings = Object.assign(defaults().settings, state.settings || {});
 if (!state.settings.spClientId && SP_REDIRECT_OK()) state.settings.spClientId = DEFAULT_SP_CLIENT;
 const S = () => state.settings;
+function devLabel(d){ const n = (S().devNames || {})[d.id]; if (n) return n; if (d.web || d.id === SP.webId) return "Den här webbläsaren"; if (/^[0-9a-f]{24,}$/i.test(d.name || "")) return (d.type === "AVR" || d.type === "Speaker") ? "Wifi-streamer (namnlös)" : "Namnlös enhet"; return d.name || "Okänd enhet"; }
 function SP_REDIRECT_OK(){ return location.origin + location.pathname === "https://rydellfilm.github.io/min-musik/"; }
 function save(){ state.updatedAt = new Date().toISOString(); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Kunde inte spara – lagringen är full."); } }
 
@@ -490,13 +491,13 @@ async function playTracks(list, startIdx = 0){
 function findPref(list){
   const s = S(); if (!s.deviceId && !s.deviceName) return null;
   if (s.deviceId === "web") return SP.webId ? {id:SP.webId} : null;
-  return list.find(x => x.id === s.deviceId) || list.find(x => s.deviceName && x.name && x.name.toLowerCase() === s.deviceName.toLowerCase()) || null;
+  return list.find(x => x.id === s.deviceId) || list.find(x => s.deviceName && x.name && devLabel(x).toLowerCase() === s.deviceName.toLowerCase()) || null;
 }
 async function getDevices(){
   let list = [];
   try { const d = await sp("/me/player/devices"); list = (d && d.devices) || []; } catch(e){}
   if (SP.webId && !list.some(d => d.id === SP.webId)) list.unshift({id:SP.webId, name:"Den här webbläsaren", type:"Computer", web:true});
-  list.forEach(d => { if (d.id === SP.webId){ d.web = true; d.name = "Den här webbläsaren"; } });
+  list.forEach(d => { if (d.id === SP.webId) d.web = true; d.rawName = d.name; d.name = devLabel(d); });
   return list;
 }
 async function pickDevice(){
@@ -539,7 +540,7 @@ async function pollNow(){
   if (!spOn() || document.hidden) return;
   try {
     const j = await sp("/me/player?additional_types=track");
-    if (j && j.item){ const was = NOW && NOW.t && NOW.t.uri; NOW = {t:fromSp(j.item), playing:j.is_playing, dev:j.device}; if (was !== NOW.t.uri) markNow(); }
+    if (j && j.item){ const was = NOW && NOW.t && NOW.t.uri; if (j.device) j.device.name = devLabel(j.device); NOW = {t:fromSp(j.item), playing:j.is_playing, dev:j.device}; if (was !== NOW.t.uri) markNow(); }
     else if (!j) NOW = null;
     renderPbar();
   } catch(e){}
@@ -578,7 +579,7 @@ function devRows(list, mode){
     const isPref = pref && pref.id === d.id, wifi = !d.web && d.type !== "Smartphone" && d.type !== "Computer";
     return `<div class="dev ${d.is_active ? "on" : ""}" ${mode === "play" ? `data-dev="${esc(d.id)}"` : `data-setdev="${esc(d.id)}"`} data-devname="${esc(d.name)}" data-devtype="${esc(d.type || "")}">
       <div class="grow"><b>${esc(d.name)}</b><div class="m">${esc(DEVTYPE[d.type] || d.type || "")}${wifi ? " · wifi" : ""}${d.is_active ? " · spelar nu" : ""}${d.is_restricted ? " · kan inte styras" : ""}</div></div>
-      ${isPref ? `<span class="tag on" style="font-size:13px">Standard</span>` : ""}</div>`;
+      ${isPref ? `<span class="tag on" style="font-size:13px">Standard</span>` : ""}${d.web ? "" : `<button class="lnk" data-devrename="${esc(d.id)}" data-devname="${esc(d.name)}" style="margin-left:10px;font-size:14px">Byt namn</button>`}</div>`;
   }).join("");
 }
 async function openDevices(){
@@ -1199,6 +1200,7 @@ document.addEventListener("click", async e => {
   if (g("#sheetx") || t.id === "sheetbg") return closeSheet();
   if (el = g("[data-pc]")) return pc(el.dataset.pc);
   if (el = g("[data-devices]")) return openDevices();
+  if (el = g("[data-devrename]")){ e.stopPropagation(); const n = await askText("Namn på enheten", /namnlös/i.test(el.dataset.devname) ? "WiiM Pro Plus" : el.dataset.devname); if (!n) return; state.settings.devNames = {...(S().devNames || {}), [el.dataset.devrename]: n}; if (S().deviceId === el.dataset.devrename) state.settings.deviceName = n; save(); toast(`Enheten heter nu ${n}`); if (state.route === "installningar") render(); return; }
   if (el = g("[data-dev]")) return chooseDevice(el.dataset.dev, el.dataset.devname, el.dataset.devtype);
   if (el = g("[data-setdev]")){ setPrefDevice(el.dataset.setdev, el.dataset.devname, el.dataset.devtype); toast(`${el.dataset.devname} är nu standardenhet`); return render(); }
   if (el = g("[data-cleardev]")){ setPrefDevice("", "", ""); state.settings.deviceId = ""; save(); toast("Ingen standardenhet – appen använder den som spelar"); return render(); }
