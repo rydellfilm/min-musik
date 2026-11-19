@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.8";
+const VERSION = "0.9";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -489,13 +489,15 @@ async function playTracks(list, startIdx = 0){
   list = (list || []).filter(Boolean); if (!list.length) return;
   if (!spOn()){ openUrl(spUrl(list[startIdx] || list[0])); toast("Öppnar i Spotify. Anslut Spotify under Inställningar så spelas musiken direkt i appen."); addRecent(list[startIdx] || list[0]); return; }
   try { SP.player && SP.player.activateElement && SP.player.activateElement(); } catch(e){}
-  const slice = list.slice(startIdx, startIdx + 100);
-  if (slice.length > 1) toast(`Förbereder ${slice.length} låtar…`);
-  const res = await pmap(slice, 4, resolve);
-  const uris = res.filter(t => t && t.uri).map(t => t.uri);
-  if (!uris.length){ toast("Hittade inte låten på Spotify."); return; }
-  await spPlay({uris});
-  addRecent(slice[0]);
+  try {
+    const slice = list.slice(startIdx, startIdx + 30);
+    toast(slice.length > 1 ? `Startar ${slice.length} låtar…` : "Startar låten…", null, null, 8000);
+    const res = await pmap(slice, 4, resolve);
+    const uris = res.filter(t => t && t.uri).map(t => t.uri);
+    if (!uris.length){ toast("Hittade inte låten på Spotify."); return; }
+    await spPlay({uris});
+    addRecent(slice[0]);
+  } catch(e){ toast("Uppspelningen misslyckades: " + (e.status ? e.status + " " : "") + e.message, null, null, 10000); }
 }
 function findPref(list){
   const s = S(); if (!s.deviceId && !s.deviceName) return null;
@@ -525,11 +527,15 @@ async function pickDevice(){
 async function spPlay(body, deviceId){
   const dev = deviceId || await pickDevice();
   if (!dev){ PENDING = body; openDevices(); return; }
-  try { await sp(`/me/player/play?device_id=${encodeURIComponent(dev)}`, {method:"PUT", body}); PENDING = null; setTimeout(pollNow, 900); setTimeout(pollNow, 2500); }
+  try {
+    await sp(`/me/player/play?device_id=${encodeURIComponent(dev)}`, {method:"PUT", body}); PENDING = null;
+    toast("Spelar på " + (S().deviceId === dev && S().deviceName ? S().deviceName : "vald enhet"), null, null, 4000);
+    setTimeout(pollNow, 900); setTimeout(pollNow, 2500);
+  }
   catch(e){
     if (e.status === 404 || e.reason === "NO_ACTIVE_DEVICE"){ PENDING = body; openDevices(); }
-    else if (e.status === 403) toast("Spotify tillåter inte uppspelningen här (kräver Premium).");
-    else toast("Spotify: " + e.message);
+    else if (e.status === 403) toast("Spotify nekade uppspelningen (403): " + e.message, null, null, 10000);
+    else toast("Spotify: " + (e.status || "") + " " + e.message, null, null, 10000);
   }
 }
 async function pc(cmd){
@@ -600,9 +606,10 @@ async function openDevices(){
   const vol = NOW && NOW.dev && NOW.dev.volume_percent != null && NOW.dev.supports_volume !== false ? NOW.dev.volume_percent : null;
   const missing = s.deviceName && s.deviceId !== "web" && !pref;
   const el = $("#devlist"); if (!el) return;
+  const localBtn = (PENDING && IS_MOBILE) ? `<div class="dev" data-localplay="1"><div class="grow"><b>Den här telefonen</b><div class="m">Spelar låten i Spotify-appen</div></div></div>` : "";
   el.innerHTML = (PENDING ? `<p class="hint" style="margin-top:0">Välj var musiken ska spelas. Valet sparas som standard.</p>` : `<p class="hint" style="margin-top:0">Tryck på en enhet för att flytta musiken dit. Den blir då din standardenhet.</p>`)
     + (missing ? `<div class="warnbox"><b>${esc(s.deviceName)}</b> syns inte just nu. ${wakeHelp(s.deviceName)}</div>` : "")
-    + (list.length ? devRows(list, "play") : `<div class="empty">Inga enheter hittades.</div>`)
+    + (list.length ? devRows(list, "play") : `<div class="empty">Inga enheter hittades.</div>`) + localBtn
     + (vol != null ? `<label class="f">Volym på ${esc(NOW.dev.name || "enheten")}</label><input type="range" min="0" max="100" value="${vol}" id="vol">` : "")
     + `<div class="acts"><button class="btn sm" data-devices="1">Sök igen</button><button class="btn sm" data-openspotify="1">Öppna Spotify</button></div>
        <h4>Wifi-högtalare (t.ex. WiiM)</h4><p class="hint">Enheter med Spotify Connect på samma nätverk visas här när de är vakna och kopplade till ditt Spotify-konto. ${IS_MOBILE ? "I mobilen syns telefonen när Spotify-appen är öppen." : ""}</p>
@@ -1223,6 +1230,7 @@ document.addEventListener("click", async e => {
   if (el = g("[data-cleardev]")){ setPrefDevice("", "", ""); state.settings.deviceId = ""; save(); toast("Ingen standardenhet – appen använder den som spelar"); return render(); }
   if (el = g("[data-loaddevs]")){ const box = $("#devset"); box.innerHTML = `<div class="empty"><span class="spin"></span>Letar…</div>`; const l = await getDevices(); box.innerHTML = l.length ? devRows(l, "set") : `<div class="empty">Inga enheter hittades. ${wakeHelp(S().deviceName || "högtalaren")}</div>`; return; }
   if (el = g("[data-openspotify]")) return openUrl("https://open.spotify.com/");
+  if (el = g("[data-localplay]")){ const u = PENDING && PENDING.uris && PENDING.uris[0]; closeSheet(); if (u) openUrl("https://open.spotify.com/track/" + u.split(":").pop()); return; }
   if (el = g("[data-play]")){ e.preventDefault(); const k = el.dataset.play, ctx = el.dataset.ctx && SETS.get(el.dataset.ctx);
     if (ctx){ const i = ctx.findIndex(x => tk(x) === k); return playTracks(ctx, Math.max(0, i)); } return playTracks([TR.get(k)]); }
   if (el = g("[data-playset]")) return playTracks(SETS.get(el.dataset.playset) || []);
