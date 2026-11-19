@@ -195,7 +195,7 @@ input[type=range]{width:100%;accent-color:var(--acc)}
    Spotify (sök, uppspelning, spellistor) · Last.fm (liknande musik) · AI (valfritt)
    Allt sparas lokalt i webbläsaren.
    ========================================================= */
-const VERSION = "0.4";
+const VERSION = "0.5";
 const APP_URL = "https://rydellfilm.github.io/min-musik/";
 const DEFAULT_SP_CLIENT = "36eaecd7df7e4ffdacb2e6707f48e22d"; // Spotify-appen "Min musik" (rydellfilm.github.io/min-musik)
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -359,9 +359,11 @@ async function spLogin(){
   if (!crypto.subtle){ toast("Webbläsaren saknar säker kontext (https) – inloggning går inte här."); return; }
   const v = b64url(crypto.getRandomValues(new Uint8Array(48)));
   const c = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)));
-  const st = b64url(crypto.getRandomValues(new Uint8Array(12)));
+  const inApp = !!(window.MMAndroid && window.MMAndroid.openBrowser);
+  const st = (inApp ? "app." : "") + b64url(crypto.getRandomValues(new Uint8Array(12)));
   localStorage.setItem("minmusik.pkce", JSON.stringify({v, st, redirect:SP_REDIRECT, id}));
   const url = "https://accounts.spotify.com/authorize?" + new URLSearchParams({client_id:id, response_type:"code", redirect_uri:SP_REDIRECT, code_challenge_method:"S256", code_challenge:c, state:st, scope:SCOPES});
+  if (inApp){ window.MMAndroid.openBrowser(url); toast("Logga in i webbläsaren. Du kommer tillbaka hit automatiskt.", null, null, 8000); return; }
   if (window.top !== window){ const w = window.open(url, "spauth", "width=480,height=760"); if (!w) location.href = url; }
   else location.href = url;
 }
@@ -1336,7 +1338,13 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- Start ---------- */
+function appReturn(qs){
+  const u = "intent://auth?" + qs + "#Intent;scheme=minmusik;package=se.rydellfilm.minmusik;end";
+  document.body.innerHTML = `<div style="padding:48px 24px;max-width:520px;margin:0 auto"><h2>Min musik</h2><p>Inloggningen är klar. Du skickas tillbaka till appen …</p><p><a class="btn pri" style="font-size:18px;padding:12px 18px;text-decoration:none" href="${esc(u)}">Öppna Min musik-appen</a></p></div>`;
+  setTimeout(() => { location.href = u; }, 300);
+}
 (async function init(){
+  { const q0 = new URLSearchParams(location.search); if ((q0.get("state") || "").startsWith("app.") && !window.MMAndroid){ appReturn(location.search.slice(1)); return; } }
   setNavH();
   render();
   await spCallback();
